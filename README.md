@@ -18,7 +18,7 @@ python3 crawl.py
 ```
 python3 process_audio.py
 ```
-这一步是将音频文件下载下来，并通过ffmpeg转换为wav格式，然后提交给百度语音进行语音识别（您需要安装相关ffmpeg组件，并申请百度API的KEY，后续版本将改成多线程以提高效率），将识别结果写入mongo
+这一步是将音频文件下载下来，并通过ffmpeg转换为wav格式，然后提交给百度语音进行语音识别（您需要安装相关[ffmpeg组件](https://www.ffmpeg.org/)，并申请[百度API](http://yuyin.baidu.com/)的KEY，后续版本将改成多线程以提高效率），将识别结果写入mongo
 ![](ScreenShot/2.jpg)
 
 ### 处理抓取的图片
