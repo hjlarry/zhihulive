@@ -2,27 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9b4c577-4c5e-4a98-a3f5-4f2bbb60c3bf" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/crawl.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/tasks.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/templates/admin/fail.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/templates/admin/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/templates/admin/main.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/templates/admin/success.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/transform.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/config.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/run.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/admin.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/crawl.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/mongo.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/process_audio.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/process_image.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ScreenShot/1.jpg" afterPath="$PROJECT_DIR$/ScreenShot/1.jpg" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ScreenShot/2.jpg" afterPath="$PROJECT_DIR$/ScreenShot/2.jpg" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ScreenShot/3.jpg" afterPath="$PROJECT_DIR$/ScreenShot/3.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -91,11 +72,21 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+          <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/README.md">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="450">
                   <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/.gitignore">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1205">
+                  <caret line="103" column="12" lean-forward="false" selection-start-line="103" selection-start-column="12" selection-end-line="103" selection-end-column="12" />
                   <folding />
                 </state>
               </provider>
@@ -198,6 +189,7 @@
         <option value="$PROJECT_DIR$/app/tasks.py" />
         <option value="$PROJECT_DIR$/app/administrator/view.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -234,17 +226,6 @@
             <path>
               <item name="zhihulive" type="b2602c69:ProjectViewProjectNode" />
               <item name="zhihulive" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="zhihulive" type="b2602c69:ProjectViewProjectNode" />
-              <item name="zhihulive" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="zhihulive" type="b2602c69:ProjectViewProjectNode" />
-              <item name="zhihulive" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="administrator" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -596,13 +577,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/local/lib/python3.6/site-packages/mongoengine/connection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="571">
-          <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/Cellar/python3/3.6.3/Frameworks/Python.framework/Versions/3.6/lib/python3.6/socketserver.py" />
     <entry file="file:///usr/local/lib/python3.6/site-packages/werkzeug/serving.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -922,6 +896,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1205">
+          <caret line="103" column="12" lean-forward="false" selection-start-line="103" selection-start-column="12" selection-end-line="103" selection-end-column="12" />
           <folding />
         </state>
       </provider>
