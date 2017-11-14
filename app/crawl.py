@@ -1,12 +1,11 @@
 from __future__ import unicode_literals, print_function
 import json
-from time import sleep
 from datetime import datetime
 import os
 from zhihu_oauth import ZhihuClient
 from zhihu_oauth.exception import NeedCaptchaException
 
-from app.models import MyLive, LiveContent
+from .models import MyLive, LiveContent
 from config import *
 
 class Crawl:
@@ -14,8 +13,8 @@ class Crawl:
         self.client = ZhihuClient()
 
     def login(self, username, password):
-        if os.path.isfile('Resource/'+username+'.token'):
-            self.client.load_token('Resource/'+username+'.token')
+        if os.path.isfile('app/Resource/'+username+'.token'):
+            self.client.load_token('app/Resource/'+username+'.token')
         else:
             try:
                 self.client.login(username, password)
@@ -25,7 +24,7 @@ class Crawl:
                     f.write(self.client.get_captcha())
                 captcha = input('please input captcha:')
                 self.client.login(username, password, captcha)
-            self.client.save_token('Resource/'+username+'.token')
+            self.client.save_token('app/Resource/'+username+'.token')
 
     def get_live_list(self):
         lives = self.client.me().lives
@@ -53,6 +52,12 @@ class Crawl:
         data = json.loads(res.content)
         return data
 
+    def save_live_content_image(self, id, url):
+        content = self.client._session.get(url).content
+        file = 'app/Resource/' + str(id) + '.png'
+        with open(file, 'wb') as f:
+            f.write(content)
+
     @staticmethod
     def save_live_content(live_id, livedata):
         for r in livedata['data']:
@@ -64,6 +69,7 @@ class Crawl:
                 url = r['audio']['url']
             elif r['type'] == 'image':
                 url = r['image']['full']['url']
+
             else:
                 url = ''
             content = r['text'] if 'text' in r else ''
@@ -92,13 +98,13 @@ class Crawl:
         else:
             print('success')
 
+        image_contents = LiveContent.objects(live_title=live.id, type='image')
+        for item in image_contents:
+            self.save_live_content_image(item.id, item.url)
 
 
 
-if __name__ == '__main__':
-    c = Crawl()
-    sleep(30)
-    c.live_list_work()
+
 
 
 

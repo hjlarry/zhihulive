@@ -1,7 +1,6 @@
 import requests
 import json
 import base64
-import os
 from pydub import AudioSegment
 
 from config import *
@@ -26,11 +25,10 @@ class Transform:
         return result['access_token']
 
     def get_audio_text(self, url):
-        content = requests.get(url).content
-        file = 'Resource/downfile.aac'
-        newfile = 'Resource/downfile.wav'
-        with open(file, 'wb') as f:
-            f.write(content)
+        file = 'app/Resource/downfile.aac'
+        newfile = 'app/Resource/downfile.wav'
+        with requests.get(url) as res, open(file, 'wb') as f:
+            f.write(res.content)
         aac_version = AudioSegment.from_file(file)
         rate = aac_version.frame_rate
         aac_version.export(newfile, format='wav')

@@ -4,33 +4,27 @@
 ## 介绍
 这是一个管理你购买过的知乎LIVE的工具，使用场景是往往我们听过的live是语音格式，无法保存、沉淀和搜索。知乎live本身做为一个付费内容，它的内容价值较高，所以做这样的工具能帮助自己更好的管理知识。希望您能注重版权，切勿随意分享自己购买过的live。
 
+## 安装及依赖
+项目使用[zhihu-oauth](https://github.com/7sDream/zhihu-oauth)解决登录抓取知乎live详细内容，使用mongo存储，使用百度语音识别将音频内容转换为文字，使用celery队列（redis做broker）处理大量的IO交互过程。
 
 ## 使用
 
-### 登录并抓取数据
+### 先使用知乎账号登录
 ```
-python3 crawl.py
+python3 run.py runserver
 ```
-这里使用的是二维码登录的方式，网页直接登录的验证码不太好破解
 ![](ScreenShot/1.jpg)
+如果需要验证码的话，可以在根目录查看a.gif，然后在命令行中输入即可
 
-### 处理抓取的音频文件
-```
-python3 process_audio.py
-```
-这一步是将音频文件下载下来，并通过ffmpeg转换为wav格式，然后提交给百度语音进行语音识别（您需要安装相关[ffmpeg组件](https://www.ffmpeg.org/)，并申请[百度API](http://yuyin.baidu.com/)的KEY，后续版本将改成多线程以提高效率），将识别结果写入mongo
+### 抓取当前用户所购的live
 ![](ScreenShot/2.jpg)
 
-### 处理抓取的图片
-```
-python3 process_image.py
-```
-将图片下载储存到本地
-
-### 启动管理服务
-```
-python3 admin.py
-```
+### 抓取每个live的具体内容，音频转换文字
 ![](ScreenShot/3.jpg)
+每个live前面对应的按钮分别是修改、删除、抓取、转换。请先抓取后再运行绑定。
+由于百度语音需要的音频格式不同，您需要安装相关[ffmpeg组件](https://www.ffmpeg.org/)，并最好申请自己的[百度API](http://yuyin.baidu.com/)修改于config.py文件中
 
-如图中红圈所见，如果您无法正确的得到抓取结果，是由于码率没有设置成16000，live中有的主讲人用的码率是8000、有的则是16000
+### 查看管理具体的live内容
+![](ScreenShot/4.jpg)
+
+
