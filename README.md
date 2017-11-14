@@ -5,6 +5,9 @@
 这是一个管理你购买过的知乎LIVE的工具，使用场景是往往我们听过的live是语音格式，无法保存、沉淀和搜索。知乎live本身做为一个付费内容，它的内容价值较高，所以做这样的工具能帮助自己更好的管理知识。希望您能注重版权，切勿随意分享自己购买过的live。
 
 ## 安装及依赖
+```
+pip3 install -r requirements.txt
+```
 项目使用[zhihu-oauth](https://github.com/7sDream/zhihu-oauth)解决登录抓取知乎live详细内容，使用mongo存储，使用百度语音识别将音频内容转换为文字，使用celery队列（redis做broker）处理大量的IO交互过程。
 
 ## 使用

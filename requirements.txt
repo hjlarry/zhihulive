@@ -1,0 +1,10 @@
+Jinja2==2.9.6
+Flask_Admin==1.5.0
+requests==2.18.1
+celery==4.1.0
+pydub==0.20.0
+flask_mongoengine==0.9.3
+Flask==0.12.2
+Flask_Script==2.0.5
+zhihu_oauth==0.0.41
+Flask_BabelEx==0.9.3
