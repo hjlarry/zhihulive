@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  redis-server:
+    image: "redis:alpine"
+    ports:
+      - "6340:6379"
+    volumes:
+      - my-test2:/data/db
+
+  mongo:
+    image: "mongo:latest"
+    volumes:
+      - .:/data/db
+
+  web:
+    build: .
+    command: python run.py runserver --host 0.0.0.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - my-test2:/data/db
+    links:
+      - mongo
+      - redis-server
+
+  celery:
+    build: .
+    command: run_celery.sh
+    volumes:
+      - my-test2:/data/db
+    links:
+      - redis-server
+
+volumes:
+  my-test2:

@@ -4,9 +4,10 @@ from flask_admin.model.template import EndpointLinkRowAction
 from flask_admin.contrib.mongoengine.filters import ReferenceObjectIdFilter
 from flask_admin import expose, BaseView
 from flask import request, redirect, url_for, flash
+from zhihu_oauth import ZhihuClient
+from zhihu_oauth.exception import NeedCaptchaException
 
 from ..models import LiveContent, MyLive
-from ..crawl import Crawl
 from .. import admin
 from .. import celery
 
@@ -71,13 +72,28 @@ class MyLiveView(ModelView):
     column_extra_row_actions = [
         EndpointLinkRowAction(
             'glyphicon glyphicon-download',
-            'tools.crawl',
+            'tools.crawl_live',
         ),
         EndpointLinkRowAction(
             'glyphicon glyphicon-transfer',
             'tools.transform_live',
         )
     ]
+
+
+def zhihu_login(username, password):
+    client = ZhihuClient()
+    try:
+        result, message = client.login(username, password)
+    except NeedCaptchaException:
+        # 保存验证码并提示输入，重新登录
+        with open('a.gif', 'wb') as f:
+            f.write(client.get_captcha())
+        captcha = input('please input captcha:')
+        result, message = client.login(username, password, captcha)
+    if result:
+        client.save_token('app/Resource/user.token')
+    return result, message
 
 
 class MyAdminIndexView(BaseView):
@@ -105,40 +121,28 @@ class MyAdminIndexView(BaseView):
         return redirect('/admin/mylive')
 
     @expose('/zhihulogin', methods=['POST'])
-    def zhihu_login(self):
-        global current
-        # g.current = Crawl()
-        current = Crawl()
+    def save_for_token(self):
         username = request.form['username']
         password = request.form['password']
-        current.login(username, password)
-        flash('登录成功')
-        return redirect('/admin/tools', code=302)
+        result, message = zhihu_login(username, password)
+        flash(message)
+        return redirect('/admin')
 
     @expose('/crawl_live_list')
     def crawl_live_list(self):
-        try:
-            current.live_list_work()
-        except Exception as e:
-            return e
-        else:
-            return redirect('admin/livecontent')
+        celery.send_task('app.tasks.crawl_live_list')
+        flash('已加入抓取队列')
+        return redirect('/admin')
 
     @expose('/crawl_live/<id>')
-    def crawl(self, id):
-        try:
-            current.live_content_work(id)
-        except Exception as e:
-            return e
-        else:
-            flash('抓取成功')
-            return redirect('admin/livecontent')
-
-
-
+    def crawl_live(self, id):
+        celery.send_task('app.tasks.crawl_live', args=(id,))
+        flash('已加入抓取队列')
+        return redirect('/admin')
 
 
 admin.add_view(MyLiveView(MyLive, name='我的LIVE'))
 admin.add_view(LiveContentView(LiveContent, name='LIVE内容'))
-admin.add_view(MyAdminIndexView(name='Other',endpoint='tools'))
+admin.add_view(MyAdminIndexView(name='使用帮助',endpoint='tools'))
+
 
