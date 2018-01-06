@@ -1,4 +1,4 @@
-from app import create_app, celery
+from app import create_app
 from flask_script import Manager
 
 my_app = create_app('default')

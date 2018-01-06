@@ -3,7 +3,8 @@ import json
 import base64
 from pydub import AudioSegment
 
-from config import *
+from .celery_config import *
+
 
 class Transform:
 
@@ -14,7 +15,8 @@ class Transform:
     def __init__(self):
         self.token = self.get_token()
 
-    def get_token(self):
+    @staticmethod
+    def get_token():
         data = {
             'grant_type': 'client_credentials',
             'client_id': BAIDU_API_KEY,
@@ -27,7 +29,8 @@ class Transform:
     def get_audio_text(self, url):
         file = 'app/Resource/downfile.aac'
         newfile = 'app/Resource/downfile.wav'
-        with requests.get(url) as res, open(file, 'wb') as f:
+        res = requests.get(url)
+        with open(file, 'wb') as f:
             f.write(res.content)
         aac_version = AudioSegment.from_file(file)
         rate = aac_version.frame_rate
@@ -50,3 +53,7 @@ class Transform:
         res = json.loads(res.text)
 
         return res['result'][0]
+
+if __name__ == '__main__':
+    t = Transform()
+    t.get_audio_text('https://live-audio.vzuu.com/0a9d4220faed91fa7c087c97c225b5f5')

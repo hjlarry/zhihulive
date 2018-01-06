@@ -1,6 +1,6 @@
 from .transform import Transform
 from .crawl import Crawl
-from .models import LiveContent
+from .celery_model import LiveContent
 from . import celery
 
 
@@ -32,6 +32,7 @@ def crawl_live_list():
 def crawl_live(id):
     c = Crawl()
     try:
+        c.login_with_token()
         c.live_content_work(id)
     except Exception as e:
         print(e)

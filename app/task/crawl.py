@@ -3,28 +3,17 @@ import json
 from datetime import datetime
 
 from zhihu_oauth import ZhihuClient
-from zhihu_oauth.exception import NeedCaptchaException
 
-from .models import MyLive, LiveContent
-from config import *
+from .celery_model import MyLive, LiveContent
+from .celery_config import *
+
+# from celery_model import MyLive, LiveContent
+# from celery_config import *
 
 
 class Crawl:
     def __init__(self):
         self.client = ZhihuClient()
-
-    def login(self, username, password):
-        try:
-            result, message = self.client.login(username, password)
-        except NeedCaptchaException:
-            # 保存验证码并提示输入，重新登录
-            with open('a.gif', 'wb') as f:
-                f.write(self.client.get_captcha())
-            captcha = input('please input captcha:')
-            result, message = self.client.login(username, password, captcha)
-        if result:
-            self.client.save_token('app/Resource/user.token')
-        return result, message
 
     def login_with_token(self):
         token = 'app/Resource/user.token'
@@ -107,16 +96,7 @@ class Crawl:
         for item in image_contents:
             self.save_live_content_image(item.id, item.url)
 
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    t = Crawl()
+    t.live_content_work('5a4dcf1c41a69a3097e30ccb')
 
