@@ -1,5 +1,5 @@
-from __future__ import unicode_literals, print_function
 import json
+import os
 from datetime import datetime
 
 from zhihu_oauth import ZhihuClient
@@ -7,25 +7,39 @@ from zhihu_oauth import ZhihuClient
 from .celery_model import MyLive, LiveContent
 from .celery_config import *
 
-# from celery_model import MyLive, LiveContent
-# from celery_config import *
-
 
 class Crawl:
-    def __init__(self):
+    """
+    A crawl obj with zhihu token.
+    """
+    def __init__(self, token=None):
         self.client = ZhihuClient()
+        self.token = token or 'app/Resource/user.token'
+        self.login_with_token()
 
     def login_with_token(self):
-        token = 'app/Resource/user.token'
-        if os.path.isfile(token):
-            self.client.load_token(token)
+        """
+        无法判断是否token有效
+        :return: None
+        """
+        if os.path.isfile(self.token):
+            self.client.load_token(self.token)
 
     def get_live_list(self):
+        """
+        获取当前用户购买过的所有live
+        :return:
+        """
         lives = self.client.me().lives
         return lives
 
     @staticmethod
     def save_live_list(livedata):
+        """
+        构建DB对象存储
+        :param livedata:
+        :return:
+        """
         new_live = MyLive(live_id=livedata.id,
                           title=livedata.title,
                           speaker=livedata.speaker.name,
@@ -36,6 +50,10 @@ class Crawl:
         new_live.save()
 
     def live_list_work(self):
+        """
+
+        :return:
+        """
         for live in self.get_live_list():
             exist = MyLive.objects(live_id=live.id)
             if not exist:
@@ -81,8 +99,8 @@ class Crawl:
                                            )
             new_live_content.save()
 
-    def live_content_work(self, id):
-        live = MyLive.objects(id=id).first()
+    def live_content_work(self, _id):
+        live = MyLive.objects(id=_id).first()
         # 使用知乎的live的ID值传入获取详情
         data = self.get_live_content(live.live_id)
         while data['unload_count'] > 0:
@@ -96,7 +114,8 @@ class Crawl:
         for item in image_contents:
             self.save_live_content_image(item.id, item.url)
 
+
 if __name__ == '__main__':
     t = Crawl()
-    t.live_content_work('5a4dcf1c41a69a3097e30ccb')
-
+    # t.live_content_work('5a4dcf1c41a69a3097e30ccb')
+    print(t.get_live_list())

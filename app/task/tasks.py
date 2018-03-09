@@ -22,7 +22,6 @@ def transform_task(id):
 def crawl_live_list():
     c = Crawl()
     try:
-        c.login_with_token()
         c.live_list_work()
     except Exception as e:
         print(e)

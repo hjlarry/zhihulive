@@ -154,7 +154,7 @@ class HelpIndexView(BaseView):
     @expose('/crawl_all_live_content')
     def crawl_all_live_content(self):
         for obj in MyLive.objects():
-            self.crawl_live(obj.id)
+            self.crawl_live(str(obj.id))
         flash('已加入抓取队列')
         return redirect('/admin')
 

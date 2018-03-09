@@ -1,6 +1,3 @@
-import os
-
-
 LOGIN_URL = 'https://www.zhihu.com/#signin'
 MYLIVE_URL = 'https://api.zhihu.com/people/self/lives'
 LIVECONTENT_URL = 'https://api.zhihu.com/lives/{}/messages?chronology=desc&before_id={}'

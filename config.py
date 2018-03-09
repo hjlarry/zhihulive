@@ -14,7 +14,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_SETTINGS = {
-        'db': os.environ.get('DATABASE_DB', 'danery'),
+        'db': os.environ.get('DATABASE_DB', 'zhihulive'),
         'host': os.environ.get('DATABASE_HOST', '127.0.0.1'),
         'port': int(os.environ.get('DATABASE_PORT', 27017)),
         'connect': False

@@ -1,7 +1,7 @@
 from mongoengine import connect, Document, IntField, StringField, DateTimeField, ReferenceField
 import datetime
 
-connect('danery')
+connect('zhihulive')
 
 
 class MyLive(Document):

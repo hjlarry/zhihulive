@@ -12,8 +12,6 @@ debugbar = DebugToolbarExtension()
 admin = Admin(name='Manage Your ZhihuLive', template_mode='bootstrap3')
 
 
-
-
 def create_app(config_name):
     app = Flask(__name__, static_folder='Resource')
     app.config.from_object(config[config_name])
@@ -31,7 +29,3 @@ def create_app(config_name):
     app.register_blueprint(admin_blueprint)
 
     return app
-
-
-
-
