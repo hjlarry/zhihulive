@@ -1,10 +1,10 @@
-from app import create_app
-from flask_script import Manager
+import asyncio
 
-my_app = create_app('default')
-my_app.app_context().push()
-manager = Manager(my_app)
+from crawl.crawl import Crawler
+
+loop = asyncio.get_event_loop()
+crawler = Crawler(loop=loop)
+loop.run_until_complete(crawler.crawl())
+print('Finished in {:.3f} seconds'.format(crawler.t1 - crawler.t0))
 
 
-if __name__ == '__main__':
-    manager.run()
