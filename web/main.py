@@ -8,7 +8,7 @@ async def handle(request):
 
 
 app = web.Application()
-app.add_routes([web.get('/', handle),
+app.router.add_routes([web.get('/', handle),
                 web.get('/{name}', handle)])
 
 if __name__ == '__main__':

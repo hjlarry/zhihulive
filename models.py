@@ -3,7 +3,7 @@ import peewee_async
 import config
 
 database = peewee_async.MySQLDatabase(host=config.DB_HOST, database=config.DB_NAME, password=config.DB_PASS,
-                                      user=config.DB_USER, charset='utf8')
+                                      user=config.DB_USER, charset='utf8mb4')
 
 
 class BaseModel(peewee.Model):
@@ -12,7 +12,7 @@ class BaseModel(peewee.Model):
 
 
 class Live(BaseModel):
-    live_id = peewee.BigIntegerField(unique=True, help_text='从知乎读取的ID')
+    zhihu_id = peewee.BigIntegerField(unique=True)
     title = peewee.CharField(null=True)
     speaker = peewee.CharField(null=True)
     speaker_description = peewee.TextField(null=True)
@@ -22,7 +22,7 @@ class Live(BaseModel):
     price = peewee.IntegerField(null=True)
     liked_num = peewee.IntegerField(null=True)
     speaker_message_count = peewee.IntegerField(null=True)
-    created_at = peewee.DateTimeField(null=True)
+    starts_at = peewee.DateTimeField(null=True)
 
     def __repr__(self):
         """Represent instance as a unique string."""
@@ -30,14 +30,16 @@ class Live(BaseModel):
 
 
 class Message(BaseModel):
-    message_id = peewee.BigIntegerField(unique=True, help_text='从知乎读取的ID')
-    url = peewee.CharField()
-    sender = peewee.CharField()
-    content = peewee.TextField()
-    reply = peewee.TextField()
-    likes = peewee.IntegerField()
-    type = peewee.CharField()
-    live = peewee.ForeignKeyField(Live)
+    zhihu_id = peewee.BigIntegerField(unique=True)
+    audio_url = peewee.CharField(null=True)
+    img_url = peewee.CharField(null=True)
+    sender = peewee.CharField(null=True)
+    text = peewee.TextField(null=True)
+    reply = peewee.TextField(null=True)
+    likes = peewee.IntegerField(null=True)
+    type = peewee.CharField(null=True)
+    created_at = peewee.DateTimeField(null=True)
+    live = peewee.ForeignKeyField(Live, null=True)
 
     def __repr__(self):
         """Represent instance as a unique string."""

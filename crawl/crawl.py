@@ -4,18 +4,17 @@ import os
 import time
 
 from crawl.client import ZhihuClient
-from models import objects, Live
+from models import objects, Live, Message
 
 LIVE_API_URL = 'https://api.zhihu.com/people/self/lives'
-MESSAGE_API_URL = 'https://api.zhihu.com/lives/{live_id}/messages?chronology=desc&before_id={before_id}'
+MESSAGE_API_URL = 'https://api.zhihu.com/lives/{zhihu_id}/messages?chronology=desc&before_id={before_id}'
 IMAGE_FOLDER = 'static/images/zhihu'
 
 
 class Crawler:
-    def __init__(self, max_redirect=10, max_tries=4, max_tasks=10, *, loop=None):
+    def __init__(self, max_tries=4, max_tasks=10, *, loop=None):
 
         self.loop = loop or asyncio.get_event_loop()
-        self.max_redirect = max_redirect
         self.max_tries = max_tries
         self.max_tasks = max_tasks
         self.q = asyncio.Queue(loop=self.loop)
@@ -40,13 +39,18 @@ class Crawler:
             if resp.status == 401:
                 self.client.refresh_token()
 
+    def add_url(self, url, live_id=None, zhihu_id=None):
+        if url not in self.seen_urls:
+            self.seen_urls.add(url)
+            self.q.put_nowait((url, live_id, zhihu_id))
+
     async def parse_live_link(self, response):
         rs = await response.json()
         if response.status == 200:
             for live in rs['data']:
-                created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(live['created_at']))
+                starts_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(live['starts_at']))
                 item, is_created = await objects.create_or_get(Live,
-                                                               live_id=live['id'],
+                                                               zhihu_id=live['id'],
                                                                title=live['subject'],
                                                                speaker=live['speaker']['member']['name'],
                                                                speaker_description=live['speaker']['description'],
@@ -56,37 +60,41 @@ class Crawler:
                                                                price=live['fee']['original_price'],
                                                                liked_num=live['liked_num'],
                                                                speaker_message_count=live['speaker_message_count'],
-                                                               created_at=created_at
+                                                               starts_at=starts_at
                                                                )
                 if is_created:
-                    self.add_message_url(item)
+                    zhihu_id = item.zhihu_id
+                    self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=item.id,
+                                 zhihu_id=zhihu_id)
             if not rs['paging']['is_end']:
-                return rs['paging']['next']
+                self.add_url(rs['paging']['next'])
 
-    async def parse_message_link(self, response):
-        pass
+    async def parse_message_link(self, response, live_id, zhihu_id):
+        rs = await response.json()
+        if response.status == 200:
+            for message in rs['data']:
+                audio_url = message['audio']['url'] if 'audio' in message else None
+                img_url = message['image']['full']['url'] if 'image' in message else None
+                text = message['text'] if 'text' in message else None
+                reply = ','.join(message['replies']) if 'replies' in message else None
+                created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(message['created_at']))
+                await objects.create_or_get(Message,
+                                            zhihu_id=message['id'],
+                                            type=message['type'],
+                                            sender=message['sender']['member']['name'],
+                                            likes=message['likes']['count'],
+                                            live=live_id,
+                                            audio_url=audio_url,
+                                            img_url=img_url,
+                                            text=text,
+                                            reply=reply,
+                                            created_at=created_at
+                                            )
+            if rs['unload_count'] > 0:
+                self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=rs['data'][0]['id']), live_id=live_id,
+                             zhihu_id=zhihu_id)
 
-    async def work(self):
-        try:
-            while 1:
-                url, max_redirect = await self.q.get()
-                await self.fetch(url, max_redirect)
-                self.q.task_done()
-                asyncio.sleep(1)
-        except asyncio.CancelledError:
-            pass
-
-    def add_url(self, url, max_redirect=None):
-        if max_redirect is None:
-            max_redirect = self.max_redirect
-        if url not in self.seen_urls:
-            self.seen_urls.add(url)
-            self.q.put_nowait((url, max_redirect))
-
-    def add_message_url(self, item):
-        print(item.live_id)
-
-    async def fetch(self, url, max_redirect):
+    async def fetch(self, url, live_id=None, zhihu_id=None):
         tries = 0
         while tries < self.max_tries:
             try:
@@ -99,11 +107,12 @@ class Crawler:
             return
 
         try:
-            parse_fn = self.parse_live_link if 'self' in url else self.parse_message_link
-            next_url = await parse_fn(response)
+            if live_id:
+                await self.parse_message_link(response, live_id, zhihu_id)
+            else:
+                await self.parse_live_link(response)
             print('{} has finished'.format(url))
-            if next_url is not None:
-                self.add_url(next_url, max_redirect)
+
         finally:
             response.release()
 
@@ -116,6 +125,16 @@ class Crawler:
                 with open(path, 'wb') as f:
                     f.write(content)
         return path
+
+    async def work(self):
+        try:
+            while 1:
+                url, live_id, zhihu_id = await self.q.get()
+                await self.fetch(url, live_id, zhihu_id)
+                self.q.task_done()
+                asyncio.sleep(1)
+        except asyncio.CancelledError:
+            pass
 
     async def crawl(self):
         await self.check_token()
