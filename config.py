@@ -9,15 +9,21 @@ APP_SECRET = b'ecbefbf6b17e47ecb9035107866380'
 
 TOKEN_FILE = 'token.json'
 CAPTCHA_FILE = 'capture.jpg'
+IMAGE_FOLDER = 'static/images/zhihu'
+AUDIO_FOLDER = 'static/audios'
 
 ZHIHU_API_ROOT = 'https://api.zhihu.com'
-PEOPLE_URL = 'https://www.zhihu.com/people/{}'
-LIVE_URL = 'https://www.zhihu.com/lives/{}'
-LIVE_USER_URL = 'https://www.zhihu.com/lives/users/{}'
-ZHUANLAN_URL = 'https://zhuanlan.zhihu.com/p/{}'
-TOPIC_URL = 'https://www.zhihu.com/topic{}/'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
 CAPTCHA_URL = ZHIHU_API_ROOT + '/captcha'
+
+LIVE_API_URL = 'https://api.zhihu.com/people/self/lives'
+MESSAGE_API_URL = 'https://api.zhihu.com/lives/{zhihu_id}/messages?chronology=desc&before_id={before_id}'
+
+
+BAIDU_API_KEY = 'Ud81kSVTD864enzE0dR6oMXm'
+BAIDU_SECRET_KEY = 'p1PIZsLVbvBGZo0Twt3ZF1W46cep9XZq'
+BAIDU_TOKEN_URL = 'https://openapi.baidu.com/oauth/2.0/token'
+BAIDU_SERVER_URL = 'http://vop.baidu.com/server_api'
 
 
 

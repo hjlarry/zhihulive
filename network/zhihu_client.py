@@ -7,9 +7,8 @@ import urllib3
 import base64
 from requests.auth import AuthBase
 
-from config import (
-    API_VERSION, APP_VERSION, APP_BUILD, UUID, UA, APP_ZA, CLIENT_ID,
-    TOKEN_FILE, LOGIN_URL, CAPTCHA_URL, CAPTCHA_FILE)
+from config import API_VERSION, APP_VERSION, APP_BUILD, UUID, UA, APP_ZA, CLIENT_ID, TOKEN_FILE, LOGIN_URL, CAPTCHA_URL, \
+    CAPTCHA_FILE
 from .utils import gen_signature
 from .exceptions import UnexpectedResponseException, MyJSONDecodeError, LoginException
 

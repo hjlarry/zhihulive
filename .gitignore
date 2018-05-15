@@ -103,6 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-app/Resource/
+static/images/zhihu
+static/audios/
 tests/
 token.json

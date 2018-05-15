@@ -12,6 +12,7 @@ requests = "*"
 aiomysql = "*"
 mysqlclient = "*"
 peewee-async = "*"
+pydub = "*"
 
 
 [dev-packages]

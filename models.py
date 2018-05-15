@@ -32,7 +32,9 @@ class Live(BaseModel):
 class Message(BaseModel):
     zhihu_id = peewee.BigIntegerField(unique=True)
     audio_url = peewee.CharField(null=True)
+    audio_path = peewee.CharField(null=True)
     img_url = peewee.CharField(null=True)
+    img_path = peewee.CharField(null=True)
     sender = peewee.CharField(null=True)
     text = peewee.TextField(null=True)
     reply = peewee.TextField(null=True)
@@ -40,10 +42,12 @@ class Message(BaseModel):
     type = peewee.CharField(null=True)
     created_at = peewee.DateTimeField(null=True)
     live = peewee.ForeignKeyField(Live, null=True)
+    is_transform = peewee.BooleanField(default=False)
+    transform_result = peewee.TextField(null=True)
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<Message({message_id})>'.format(message_id=self.message_id)
+        return '<Message({message_id})>'.format(message_id=self.zhihu_id)
 
 
 def create_table():

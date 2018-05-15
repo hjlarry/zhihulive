@@ -2,13 +2,12 @@ import asyncio
 import aiohttp
 import os
 import time
+from pydub import AudioSegment
 
-from crawl.client import ZhihuClient
 from models import objects, Live, Message
+from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER
 
-LIVE_API_URL = 'https://api.zhihu.com/people/self/lives'
-MESSAGE_API_URL = 'https://api.zhihu.com/lives/{zhihu_id}/messages?chronology=desc&before_id={before_id}'
-IMAGE_FOLDER = 'static/images/zhihu'
+from .zhihu_client import ZhihuClient
 
 
 class Crawler:
@@ -62,7 +61,8 @@ class Crawler:
                                                                speaker_message_count=live['speaker_message_count'],
                                                                starts_at=starts_at
                                                                )
-                if is_created:
+                # 957358881807056896是霍金的免费live，太大了，不抓取
+                if is_created and not item.zhihu_id == 957358881807056896:
                     zhihu_id = item.zhihu_id
                     self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=item.id,
                                  zhihu_id=zhihu_id)
@@ -78,21 +78,50 @@ class Crawler:
                 text = message['text'] if 'text' in message else None
                 reply = ','.join(message['replies']) if 'replies' in message else None
                 created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(message['created_at']))
-                await objects.create_or_get(Message,
-                                            zhihu_id=message['id'],
-                                            type=message['type'],
-                                            sender=message['sender']['member']['name'],
-                                            likes=message['likes']['count'],
-                                            live=live_id,
-                                            audio_url=audio_url,
-                                            img_url=img_url,
-                                            text=text,
-                                            reply=reply,
-                                            created_at=created_at
-                                            )
+                item, is_created = await objects.create_or_get(Message,
+                                                               zhihu_id=message['id'],
+                                                               type=message['type'],
+                                                               sender=message['sender']['member']['name'],
+                                                               likes=message['likes']['count'],
+                                                               live=live_id,
+                                                               audio_url=audio_url,
+                                                               img_url=img_url,
+                                                               text=text,
+                                                               reply=reply,
+                                                               created_at=created_at
+                                                               )
+
+                if is_created and img_url:
+                    item.img_path = await self.convert_local_image(img_url)
+                elif is_created and audio_url:
+                    item.audio_path = await self.convert_local_audio(audio_url)
+                await item.save()
+
             if rs['unload_count'] > 0:
                 self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=rs['data'][0]['id']), live_id=live_id,
                              zhihu_id=zhihu_id)
+
+    async def convert_local_image(self, pic):
+        pic_name = pic.split('/')[-1]
+        path = os.path.join(IMAGE_FOLDER, pic_name)
+        if not os.path.exists(path):
+            async with self.session.get(pic) as resp:
+                content = await resp.read()
+                with open(path, 'wb') as f:
+                    f.write(content)
+        return path
+
+    async def convert_local_audio(self, audio):
+        audio_name = audio.split('/')[-1] + '.wav'
+        path = os.path.join(AUDIO_FOLDER, audio_name)
+        if not os.path.exists(path):
+            async with self.session.get(audio) as resp:
+                content = await resp.read()
+                with open(path, 'wb') as f:
+                    f.write(content)
+                aac = AudioSegment.from_file(path)
+                aac.export(path, format='wav')
+        return path
 
     async def fetch(self, url, live_id=None, zhihu_id=None):
         tries = 0
@@ -116,16 +145,6 @@ class Crawler:
         finally:
             response.release()
 
-    async def convert_local_image(self, pic):
-        pic_name = pic.split('/')[-1]
-        path = os.path.join(IMAGE_FOLDER, pic_name)
-        if not os.path.exists(path):
-            async with self.session.get(pic) as resp:
-                content = await resp.read()
-                with open(path, 'wb') as f:
-                    f.write(content)
-        return path
-
     async def work(self):
         try:
             while 1:
@@ -138,8 +157,7 @@ class Crawler:
 
     async def crawl(self):
         await self.check_token()
-        self.__workers = [asyncio.Task(self.work(), loop=self.loop)
-                          for _ in range(self.max_tasks)]
+        self.__workers = [asyncio.Task(self.work(), loop=self.loop) for _ in range(self.max_tasks)]
         self.t0 = time.time()
         await self.q.join()
         self.add_url(LIVE_API_URL)
