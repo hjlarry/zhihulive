@@ -1,12 +1,14 @@
 import asyncio
 
 from network import crawl
+from network import transform
 
 loop = asyncio.get_event_loop()
-crawler = crawl.Crawler(loop=loop)
-loop.run_until_complete(crawler.crawl())
-print('Finished in {:.3f} seconds'.format(crawler.t1 - crawler.t0))
+# crawler = crawl.Crawler(loop=loop)
+# loop.run_until_complete(crawler.crawl())
+# print('Finished in {:.3f} seconds'.format(crawler.t1 - crawler.t0))
 # loop = asyncio.get_event_loop()
-# t = transform.Transformer(loop=loop)
-# loop.run_until_complete(t.get_token())
-# print(t.token)
+t = transform.Transformer(loop=loop)
+loop.run_until_complete(t.transform())
+print('Finished in {:.3f} seconds'.format(t.t1 - t.t0))
+
