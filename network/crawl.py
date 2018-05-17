@@ -95,7 +95,7 @@ class Crawler:
                     item.img_path = await self.convert_local_image(img_url)
                 elif is_created and audio_url:
                     item.audio_path = await self.convert_local_audio(audio_url)
-                await item.save()
+                await objects.update(item)
 
             if rs['unload_count'] > 0:
                 self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=rs['data'][0]['id']), live_id=live_id,

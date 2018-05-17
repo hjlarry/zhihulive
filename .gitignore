@@ -103,7 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-static/images/zhihu
+static/images/zhihu/
 static/audios/
 tests/
 token.json

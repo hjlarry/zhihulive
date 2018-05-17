@@ -2,9 +2,10 @@ import asyncio
 import aiohttp
 import time
 import base64
+import json
 from pydub import AudioSegment
 
-from models import objects, Live, Message
+from models import objects, Message
 from config import BAIDU_SERVER_URL
 
 from .utils import get_baidu_token
@@ -31,8 +32,10 @@ class Transformer:
     async def close(self):
         await self.session.close()
 
-    def add_url(self):
-        pass
+    async def add_queue(self):
+        items = await objects.execute(Message.select().where((Message.type == 'audio') & (Message.is_transform == False)))
+        for item in items:
+            self.q.put_nowait((item.id, item.audio_path))
 
     async def transmit(self, message_id, audio_file):
         tries = 0
@@ -51,9 +54,10 @@ class Transformer:
             "len": length,
             "speech": b64.decode(),
         }
+        data = json.dumps(data)
         while tries < self.max_tries:
             try:
-                response = await self.session.post(BAIDU_SERVER_URL, data=data, allow_redirects=False)
+                response = await self.session.post(BAIDU_SERVER_URL, data=data, allow_redirects=False, headers=self.headers)
                 break
             except aiohttp.ClientError as client_error:
                 print(client_error)
@@ -71,10 +75,10 @@ class Transformer:
     async def parse_result(self, response, message_id):
         rs = await response.json()
         if response.status == 200:
-            message = await Message.get(message_id)
+            message = await objects.get(Message, id=message_id)
             message.transform_result = rs['result'][0]
             message.is_transform = True
-            await message.save()
+            await objects.update(message)
 
     async def work(self):
         try:
@@ -90,7 +94,7 @@ class Transformer:
         self.__workers = [asyncio.Task(self.work(), loop=self.loop) for _ in range(self.max_tasks)]
         self.t0 = time.time()
         await self.q.join()
-        self.add_url()
+        await self.add_queue()
         await self.q.join()
         self.t1 = time.time()
         for w in self.__workers:
