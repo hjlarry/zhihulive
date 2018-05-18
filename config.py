@@ -9,8 +9,8 @@ APP_SECRET = b'ecbefbf6b17e47ecb9035107866380'
 
 TOKEN_FILE = 'token.json'
 CAPTCHA_FILE = 'capture.jpg'
-IMAGE_FOLDER = 'static/images/zhihu'
-AUDIO_FOLDER = 'static/audios'
+IMAGE_FOLDER = 'download/images/zhihu'
+AUDIO_FOLDER = 'download/audios'
 
 ZHIHU_API_ROOT = 'https://api.zhihu.com'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'

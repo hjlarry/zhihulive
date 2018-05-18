@@ -13,6 +13,7 @@ aiomysql = "*"
 mysqlclient = "*"
 peewee-async = "*"
 pydub = "*"
+"aiohttp-jinja2" = "*"
 
 
 [dev-packages]

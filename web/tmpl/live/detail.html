@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
+    <div class="card">
+      <div class="card-header"><a href="{{url('index')}}">← 返回</a></div>
+      <div class="card-body">
+        <h5 class="card-title">{{item.title}}</h5>
+        <p class="card-text">{{item.live_description}}</p>
+
+          <dl class="row">
+              <dt class="col-sm-3">作者</dt>
+              <dd class="col-sm-9"><p>{{item.speaker}}</p></dd>
+
+              <dt class="col-sm-3">作者简介</dt>
+              <dd class="col-sm-9"><p>{{item.speaker_description}}</p></dd>
+
+              <dt class="col-sm-3">大纲</dt>
+              <dd class="col-sm-9"><p>{{item.outline}}</p></dd>
+
+              <dt class="col-sm-3">Live开始时间</dt>
+              <dd class="col-sm-9">{{item.starts_at}}</dd>
+
+              <dt class="col-sm-3">参与人数</dt>
+              <dd class="col-sm-9">{{item.seats_count}}</dd>
+
+              <dt class="col-sm-3">点赞人数</dt>
+              <dd class="col-sm-9">{{item.liked_num}}</dd>
+
+              <dt class="col-sm-3">购买价格</dt>
+              <dd class="col-sm-9">{{item.price}}</dd>
+
+              <dt class="col-sm-3">作者消息数量</dt>
+              <dd class="col-sm-9">{{item.speaker_message_count}}</dd>
+
+              <dt class="col-sm-3">知乎Id</dt>
+              <dd class="col-sm-9">{{item.zhihu_id}}</dd>
+
+            </dl>
+        <a href="#" class="btn btn-primary">进入Live</a>
+      </div>
+    </div>
+
+</main>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
+  <div class="table-responsive">
+    <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th class="text-center" width="50">ID</th>
+          <th>内容</th>
+          <th width="200" class="text-center">发出者</th>
+          <th width="100" class="text-center">消息类型</th>
+          <th width="200" class="text-center">操作</th>
+
+        </tr>
+      </thead>
+      <tbody>
+      {%- for item in items %}
+      <tr>
+          <td class="text-center">{{ item.id }}</td>
+          <td>{{ item.text }}</td>
+          <td class="text-center">{{ item.sender }}</td>
+          <td class="text-center">{{ item.type }}</td>
+
+          <td class="text-center"><a href="{{url('live_detail', id=item.id)}}"  class="btn btn-outline-info btn-sm">介绍</a>
+              <a href="" class="btn btn-outline-primary btn-sm">进入</a> </td>
+        </tr>
+      {%- endfor %}
+
+      </tbody>
+    </table>
+      <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item active"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">Next</a>
+            </li>
+          </ul>
+        </nav>
+  </div>
+</main>
+{% endblock %}
