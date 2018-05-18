@@ -103,7 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-
+download/images/zhihu/
+download/audios/
 tests/
 token.json
 /.idea
