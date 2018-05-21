@@ -32,9 +32,6 @@ async def message_index(request):
     per_page = 20
     query = Message.select().where(Message.live == live_id).paginate(current_page, per_page)
     items = await objects.execute(query)
-    for item in items:
-        if item.type == 'audio' and item.is_transform:
-            item.text = item.transform_result
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
     pages_count = (counts + per_page - 1) // per_page

@@ -15,10 +15,31 @@
             </tr>
             </thead>
             <tbody>
-            {%- for item in items %}
+            {% for item in items %}
             <tr>
                 <td class="text-center">{{ item.id }}</td>
-                <td>{{ item.text }}</td>
+                <td>
+                    {% if item.type == 'audio' and item.is_transform %}
+                    {{item.transform_result|truncate(90)}}
+                    <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                    <div class="collapse" id="{{item.id}}">
+                        <div class="card card-body">
+                            {{item.transform_result}}
+                            <audio controls src="{{item.audio_url}}" preload="none"></audio>
+                        </div>
+                    </div>
+                    {% elif item.text %}
+                    {{ item.text|truncate(90) }}
+                        {% if item.text|length > 90 %}
+                        <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                        <div class="collapse" id="{{item.id}}">
+                            <div class="card card-body">
+                                {{item.text}}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </td>
                 <td class="text-center">{{ item.sender }}</td>
                 <td class="text-center">{{ item.type }}</td>
 
@@ -26,7 +47,7 @@
                                            class="btn btn-outline-info btn-sm">编辑</a>
                     <a href="" class="btn btn-outline-primary btn-sm">删除</a></td>
             </tr>
-            {%- endfor %}
+            {% endfor %}
 
             </tbody>
         </table>
