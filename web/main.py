@@ -28,19 +28,27 @@ async def live_detail(request):
 @aiohttp_jinja2.template('message/index.html')
 async def message_index(request):
     live_id = request.match_info.get('id', 1)
-    current_page = request.query.get('page', 1)
+    current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Message.select().where(Message.live == live_id).paginate(int(current_page), per_page)
+    query = Message.select().where(Message.live == live_id).paginate(current_page, per_page)
     items = await objects.execute(query)
+    for item in items:
+        if item.type == 'audio' and item.is_transform:
+            item.text = item.transform_result
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
     pages_count = (counts + per_page - 1) // per_page
+    start_page = current_page - 3 if current_page > 3 else 1
+    end_page = current_page + 4 if current_page < pages_count - 3 else pages_count + 1
     data = {
         'items': items,
         'page': {
+            'live_id': live_id,
             'counts': counts,
             'current_page': current_page,
-            'pages_count': pages_count
+            'pages_count': pages_count,
+            'start_page': start_page,
+            'end_page': end_page
         }
     }
     return data
