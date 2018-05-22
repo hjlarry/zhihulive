@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1d672f116871197982a482a3f0025e4c6ba56c1be10e55b968e5646231f91e0f"
+            "sha256": "2aa55c04239ff5a3508bfb5bf8c3a3b09c048541e1be3f837245c0b4262e4857"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -47,6 +47,13 @@
             ],
             "version": "==3.2.1"
         },
+        "aiohttp-debugtoolbar": {
+            "hashes": [
+                "sha256:3ec0eca2ce6227051fa900c46fe1c5a50e1cb40557f7f114623735b77823cfa9",
+                "sha256:697c9cfac4017d532e26a8c05f14c1a43b3b147f53460daacb0ed144401df441"
+            ],
+            "version": "==0.5.0"
+        },
         "aiohttp-jinja2": {
             "hashes": [
                 "sha256:ad8ee601759408d049e1a4cb139a2e2d7d4b43e911eb168cdcbf6ce6c0b40ee1",
@@ -56,9 +63,9 @@
         },
         "aiomysql": {
             "hashes": [
-                "sha256:e89cf3308db1212167996d54bcb0f9b0ecdbf7d303c6bf8c7a2554174645faa8"
+                "sha256:8ea2977e5790f9bda966e0f955530d693c4b3359c62d1d6f29adb4d3a69fdd4c"
             ],
-            "version": "==0.0.14"
+            "version": "==0.0.15"
         },
         "async-timeout": {
             "hashes": [

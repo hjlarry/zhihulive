@@ -2,7 +2,10 @@
 
 {% block content %}
 <main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
-    <div class="table-responsive">
+    <div class="card">
+      <div class="card-header"><a href="{{url('live_detail', id=live.id)}}">{{live.title}}</a></div>
+      <div class="card-body">
+        <div class="table-responsive">
         <table class="table table-hover table-sm">
             <thead>
             <tr>
@@ -43,7 +46,7 @@
                 <td class="text-center">{{ item.sender }}</td>
                 <td class="text-center">{{ item.type }}</td>
 
-                <td class="text-center"><a href="{{url('live_detail', id=item.id)}}"
+                <td class="text-center"><a href="{{url('message_detail', id=item.id)}}"
                                            class="btn btn-outline-info btn-sm">编辑</a>
                     <a href="" class="btn btn-outline-primary btn-sm">删除</a></td>
             </tr>
@@ -73,5 +76,8 @@
             </ul>
         </nav>
     </div>
+      </div>
+    </div>
+
 </main>
 {% endblock %}

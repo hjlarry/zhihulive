@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
+    <div class="card">
+        <div class="card-header"><a href="javascript:history.back();">← 返回</a></div>
+        <div class="card-body">
+            <form action="{{url('message_edit', id=item.id)}}" method="post">
+                <div class="form-group row">
+                    <label for="zhihuID" class="col-sm-2 col-form-label">知乎ID</label>
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext" id="zhihuID"
+                               value="{{item.zhihu_id}}">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="sender" class="col-sm-2 col-form-label">发出者</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="sender" value="{{item.sender}}" name="sender">
+                    </div>
+                </div>
+
+                {% if item.reply %}
+                <div class="form-group row">
+                    <label for="reply" class="col-sm-2 col-form-label">回复</label>
+                    <div class="col-sm-10">
+                        <span id="reply" class="form-control-plaintext">
+                            {% set replys = item.reply.split(',') %}
+                            {% for r in replys %}
+                            <a href="{{url('message_detail', id=item.id, query_={'zhihu_id': r})}}">{{r}}</a>
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-group row">
+                    <label for="messageType" class="col-sm-2 col-form-label">消息类型</label>
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext" id="messageType"
+                               value="{{item.type}}">
+                    </div>
+                </div>
+                {% if item.type == 'audio' %}
+                <div class="form-group row">
+                    <label for="audio_url" class="col-sm-2 col-form-label">音频知乎地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="audio_url" name="audio_url"
+                               value="{{item.audio_url}}">
+                        <small>
+                            <audio controls src="{{item.audio_url}}" preload="none"></audio>
+                        </small>
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label for="audio_path" class="col-sm-2 col-form-label">音频本地路径</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="audio_path" name="audio_path"
+                               value="{{item.audio_path}}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="is_transform" class="col-sm-2 col-form-label">是否转为文字</label>
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext" id="is_transform"
+                               value="{{item.is_transform}}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="transform_result" class="col-sm-2 col-form-label">转换内容</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="transform_result"
+                                  rows="5" name="transform_result">{{item.transform_result}}</textarea>
+                    </div>
+                </div>
+                {% elif item.type == 'image' %}
+                <div class="form-group row">
+                    <label for="img_url" class="col-sm-2 col-form-label">图片知乎地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="img_url" name="img_url"
+                               value="{{item.img_url}}">
+                        <img class="d-block w-100" src="{{item.img_url}}" alt="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="img_path" class="col-sm-2 col-form-label">图片本地路径</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="img_path" name="img_path"
+                               value="{{item.img_path}}">
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group row">
+                    <label for="text" class="col-sm-2 col-form-label">内容</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="text" rows="5" name="text">{{item.text}}</textarea>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-group row">
+                    <label for="likes" class="col-sm-2 col-form-label">喜欢</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="likes"
+                               value="{{item.likes}}" name="likes">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="created_at" class="col-sm-2 col-form-label">发出时间</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="created_at"
+                               value="{{item.created_at}}" name="created_at">
+                    </div>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
