@@ -47,8 +47,12 @@
                         <td class="text-center">{{ item.type }}</td>
 
                         <td class="text-center">
-                            <a href="{{url('message_detail', id=item.id)}}" class="btn btn-outline-primary btn-sm">编辑</a>
-                            <a href="" class="btn btn-outline-info btn-sm">删除</a></td>
+                            <a href="{{url('message_detail', id=item.id)}}" class="btn btn-outline-primary btn-sm ">编辑</a>
+                            <form action="{{url('message_delete', id=item.id, query_={'live_id': live.id})}}" method="post" style="display: inline-block">
+                                <button class="btn btn-outline-info btn-sm " type="submit">删除</button>
+                            </form>
+                            <!--<a href="" class="btn btn-outline-info btn-sm"></a>-->
+                        </td>
                     </tr>
                     {% endfor %}
 

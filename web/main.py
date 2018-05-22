@@ -84,6 +84,14 @@ async def message_edit(request):
     return web.HTTPFound(app.router['message_detail'].url_for(id=message_id))
 
 
+async def message_delete(request):
+    message_id = request.match_info.get('id')
+    live_id = request.query.get('live_id', 1)
+    item = await objects.get(Message, id=message_id)
+    await objects.delete(item)
+    return web.HTTPFound(app.router['live_content'].url_for(id=live_id))
+
+
 app = web.Application()
 tmpl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'tmpl')
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(tmpl_path))
@@ -95,6 +103,7 @@ app.router.add_routes([web.get('/', index, name='index'),
                        web.get('/live_content/{id}', message_list, name='live_content'),
                        web.get('/message/{id}', message_detail, name='message_detail'),
                        web.post('/message/{id}', message_edit, name='message_edit'),
+                       web.post('/message/delete/{id}', message_delete, name='message_delete'),
                        ])
 
 if __name__ == '__main__':
