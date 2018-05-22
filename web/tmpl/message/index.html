@@ -3,80 +3,80 @@
 {% block content %}
 <main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
     <div class="card">
-      <div class="card-header"><a href="{{url('live_detail', id=live.id)}}">{{live.title}}</a></div>
-      <div class="card-body">
-        <div class="table-responsive">
-        <table class="table table-hover table-sm">
-            <thead>
-            <tr>
-                <th class="text-center" width="50">ID</th>
-                <th>内容</th>
-                <th width="200" class="text-center">发出者</th>
-                <th width="100" class="text-center">消息类型</th>
-                <th width="200" class="text-center">操作</th>
+        <div class="card-header"><a href="{{url('live_detail', id=live.id)}}">{{live.title}}</a></div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th class="text-center" width="50">ID</th>
+                        <th>内容</th>
+                        <th width="200" class="text-center">发出者</th>
+                        <th width="100" class="text-center">消息类型</th>
+                        <th width="200" class="text-center">操作</th>
 
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in items %}
-            <tr>
-                <td class="text-center">{{ item.id }}</td>
-                <td>
-                    {% if item.type == 'audio' and item.is_transform %}
-                    {{item.transform_result|truncate(90)}}
-                    <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
-                    <div class="collapse" id="{{item.id}}">
-                        <div class="card card-body">
-                            {{item.transform_result}}
-                            <audio controls src="{{item.audio_url}}" preload="none"></audio>
-                        </div>
-                    </div>
-                    {% elif item.text %}
-                    {{ item.text|truncate(90) }}
-                        {% if item.text|length > 90 %}
-                        <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
-                        <div class="collapse" id="{{item.id}}">
-                            <div class="card card-body">
-                                {{item.text}}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td class="text-center">{{ item.id }}</td>
+                        <td>
+                            {% if item.type == 'audio' and item.is_transform %}
+                            {{item.transform_result|truncate(90)}}
+                            <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                            <div class="collapse" id="{{item.id}}">
+                                <div class="card card-body">
+                                    {{item.transform_result}}
+                                    <audio controls src="{{item.audio_url}}" preload="none"></audio>
+                                </div>
                             </div>
-                        </div>
-                        {% endif %}
-                    {% endif %}
-                </td>
-                <td class="text-center">{{ item.sender }}</td>
-                <td class="text-center">{{ item.type }}</td>
+                            {% elif item.text %}
+                            {{ item.text|truncate(90) }}
+                            {% if item.text|length > 90 %}
+                            <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                            <div class="collapse" id="{{item.id}}">
+                                <div class="card card-body">
+                                    {{item.text}}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ item.sender }}</td>
+                        <td class="text-center">{{ item.type }}</td>
 
-                <td class="text-center"><a href="{{url('message_detail', id=item.id)}}"
-                                           class="btn btn-outline-info btn-sm">编辑</a>
-                    <a href="" class="btn btn-outline-primary btn-sm">删除</a></td>
-            </tr>
-            {% endfor %}
+                        <td class="text-center">
+                            <a href="{{url('message_detail', id=item.id)}}" class="btn btn-outline-primary btn-sm">编辑</a>
+                            <a href="" class="btn btn-outline-info btn-sm">删除</a></td>
+                    </tr>
+                    {% endfor %}
 
-            </tbody>
-        </table>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
 
-                <li class="page-item {{'disabled' if page.current_page == 1 else None}}">
-                    <a class="page-link"
-                       href="{{url('live_content', id=page.live_id, query_={'page': page.current_page-1})}}"
-                       tabindex="-1">Previous</a>
-                </li>
+                        <li class="page-item {{'disabled' if page.current_page == 1 else None}}">
+                            <a class="page-link"
+                               href="{{url('live_content', id=page.live_id, query_={'page': page.current_page-1})}}"
+                               tabindex="-1">Previous</a>
+                        </li>
 
-                {% for i in range(page.start_page, page.end_page) %}
-                <li class="page-item {{'active' if page.current_page == i else None}}">
-                    <a class="page-link" href="{{url('live_content', id=page.live_id, query_={'page': i})}}">{{i}}</a>
-                </li>
-                {% endfor %}
+                        {% for i in range(page.start_page, page.end_page) %}
+                        <li class="page-item {{'active' if page.current_page == i else None}}">
+                            <a class="page-link" href="{{url('live_content', id=page.live_id, query_={'page': i})}}">{{i}}</a>
+                        </li>
+                        {% endfor %}
 
-                <li class="page-item {{'disabled' if page.current_page == page.pages_count else None}}">
-                    <a class="page-link"
-                       href="{{url('live_content', id=page.live_id, query_={'page': page.current_page+1})}}">Next</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-      </div>
+                        <li class="page-item {{'disabled' if page.current_page == page.pages_count else None}}">
+                            <a class="page-link"
+                               href="{{url('live_content', id=page.live_id, query_={'page': page.current_page+1})}}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
 
 </main>

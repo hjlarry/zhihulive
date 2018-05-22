@@ -108,3 +108,4 @@ download/audios/
 tests/
 token.json
 /.idea
+*.js linguist-language=python
