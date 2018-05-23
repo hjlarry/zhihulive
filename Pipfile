@@ -13,5 +13,6 @@ pydub = "*"
 "aiohttp-jinja2" = "*"
 aiohttp-debugtoolbar = "*"
 click = "*"
+peewee = "*"
 
 [dev-packages]

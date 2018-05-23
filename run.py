@@ -4,7 +4,7 @@ from aiohttp import web
 
 from network import crawl
 from network import transform
-from models import create_table
+from models import create_table, drop_table
 from web.main import app
 
 
@@ -22,6 +22,7 @@ def initdb():
 @click.command()
 def dropdb():
     click.echo('Dropped the database')
+    drop_table()
 
 
 @click.command()
@@ -45,6 +46,7 @@ def transform():
 @click.command()
 def webserver():
     click.echo('Start webserver')
+    app.router.add_static('/static', 'web/static')
     web.run_app(app)
 
 

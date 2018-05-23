@@ -25,7 +25,6 @@ class Live(BaseModel):
     starts_at = peewee.DateTimeField(null=True)
 
     def __repr__(self):
-        """Represent instance as a unique string."""
         return '<Live({title})>'.format(title=self.title)
 
 
@@ -46,15 +45,19 @@ class Message(BaseModel):
     transform_result = peewee.TextField(null=True)
 
     def __repr__(self):
-        """Represent instance as a unique string."""
         return '<Message({message_id})>'.format(message_id=self.zhihu_id)
 
 
 def create_table():
-    # Look, sync code is working!
     with database.allow_sync():
         Live.create_table(True)
         Message.create_table(True)
+
+
+def drop_table():
+    with database.allow_sync():
+        Live.drop_table(True)
+        Message.drop_table(True)
 
 
 # Create async models manager:

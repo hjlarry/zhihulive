@@ -97,7 +97,6 @@ tmpl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'tmpl')
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(tmpl_path))
 app['static_root_url'] = '/static'
 aiohttp_debugtoolbar.setup(app, intercept_redirects=False)
-app.router.add_static('/static', 'static')
 app.router.add_routes([web.get('/', index, name='index'),
                        web.get('/live/{id}', live_detail, name='live_detail'),
                        web.get('/live_content/{id}', message_list, name='live_content'),
@@ -107,4 +106,5 @@ app.router.add_routes([web.get('/', index, name='index'),
                        ])
 
 if __name__ == '__main__':
+    app.router.add_static('/static', 'static')
     web.run_app(app)

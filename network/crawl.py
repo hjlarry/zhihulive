@@ -61,7 +61,7 @@ class Crawler:
                                                                speaker_message_count=live['speaker_message_count'],
                                                                starts_at=starts_at
                                                                )
-                # 957358881807056896是霍金的免费live，太大了，不抓取
+                # 957358881807056896是关于霍金的免费live，太大了，不抓取
                 if is_created and not item.zhihu_id == 957358881807056896:
                     zhihu_id = item.zhihu_id
                     self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=item.id,
