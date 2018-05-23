@@ -2,8 +2,8 @@ import asyncio
 import click
 from aiohttp import web
 
-from network import crawl
-from network import transform
+from network.crawl import Crawler
+from network.transform import Transformer
 from models import create_table, drop_table
 from web.main import app
 
@@ -29,7 +29,7 @@ def dropdb():
 def crawl():
     click.echo('Start crawl')
     loop = asyncio.get_event_loop()
-    crawler = crawl.Crawler(loop=loop)
+    crawler = Crawler(loop=loop)
     loop.run_until_complete(crawler.crawl())
     click.echo('Finished in {:.3f} seconds'.format(crawler.t1 - crawler.t0))
 
@@ -38,7 +38,7 @@ def crawl():
 def transform():
     click.echo('Start transform')
     loop = asyncio.get_event_loop()
-    transformer = transform.Transformer(loop=loop)
+    transformer = Transformer(loop=loop)
     loop.run_until_complete(transformer.transform())
     click.echo('Finished in {:.3f} seconds'.format(transformer.t1 - transformer.t0))
 
