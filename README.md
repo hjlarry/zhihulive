@@ -7,11 +7,11 @@
 这是一个管理你购买过的知乎LIVE的工具，使用场景是往往我们听过的live是语音格式，无法保存、沉淀和搜索。知乎live本身做为一个付费内容，它的内容价值较高，所以做这样的工具能帮助自己更好的管理知识。希望您能注重版权，切勿随意分享自己购买过的live。
 
 ## 预览
-![效果图](Screenshot/1.png)
-![效果图](Screenshot/2.png)
-![效果图](Screenshot/3.png)
+![效果图](ScreenShot/1.png)
+![效果图](ScreenShot/2.png)
+![效果图](ScreenShot/3.png)
 
-![效果图](Screenshot/4.png)
+![效果图](ScreenShot/4.png)
 
 
 ## 安装和使用
