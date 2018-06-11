@@ -8,30 +8,14 @@ from models import objects, Live, Message
 from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER
 
 from .zhihu_client import ZhihuClient
+from .utils import BaseWebTransfer
 
 
-class Crawler:
+class Crawler(BaseWebTransfer):
     def __init__(self, max_tries=4, max_tasks=10, *, loop=None):
-
-        self.loop = loop or asyncio.get_event_loop()
-        self.max_tries = max_tries
-        self.max_tasks = max_tasks
-        self.q = asyncio.Queue(loop=self.loop)
-
-        self.headers = {}
+        super().__init__(max_tries, max_tasks, loop=loop)
         self.client = ZhihuClient()
         self.client.auth(self)
-        self._session = None
-        self.seen_urls = set()
-
-    @property
-    def session(self):
-        if self._session is None:
-            self._session = aiohttp.ClientSession(headers=self.headers, loop=self.loop)
-        return self._session
-
-    async def close(self):
-        await self.session.close()
 
     async def check_token(self):
         async with self.session.get(LIVE_API_URL) as resp:
@@ -101,21 +85,21 @@ class Crawler:
                 self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=rs['data'][0]['id']), live_id=live_id,
                              zhihu_id=zhihu_id)
 
-    async def convert_local_image(self, pic):
-        pic_name = pic.split('/')[-1]
+    async def convert_local_image(self, pic_url):
+        pic_name = pic_url.split('/')[-1]
         path = os.path.join(IMAGE_FOLDER, pic_name)
         if not os.path.exists(path):
-            async with self.session.get(pic) as resp:
+            async with self.session.get(pic_url) as resp:
                 content = await resp.read()
                 with open(path, 'wb') as f:
                     f.write(content)
         return path
 
-    async def convert_local_audio(self, audio):
-        audio_name = audio.split('/')[-1] + '.wav'
+    async def convert_local_audio(self, audio_url):
+        audio_name = audio_url.split('/')[-1] + '.wav'
         path = os.path.join(AUDIO_FOLDER, audio_name)
         if not os.path.exists(path):
-            async with self.session.get(audio) as resp:
+            async with self.session.get(audio_url) as resp:
                 content = await resp.read()
                 with open(path, 'wb') as f:
                     f.write(content)
