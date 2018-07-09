@@ -14,5 +14,6 @@ pydub = "*"
 aiohttp-debugtoolbar = "*"
 click = "*"
 peewee = "*"
+zhihu-oauth = "*"
 
 [dev-packages]
