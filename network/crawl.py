@@ -7,23 +7,20 @@ from pydub import AudioSegment
 from models import objects, Live, Message
 from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER
 
-from zhihu_oauth import ZhihuClient
+from .zhihu import MyZhihuClient
 from .utils import BaseWebTransfer
 
 
 class Crawler(BaseWebTransfer):
     def __init__(self, max_tries=4, max_tasks=10, *, loop=None):
         super().__init__(max_tries, max_tasks, loop=loop)
-        self.client = ZhihuClient()
+        self.client = MyZhihuClient()
+        self.client.auth(self)
 
     async def check_token(self):
         async with self.session.get(LIVE_API_URL) as resp:
             if resp.status == 401:
-                if os.path.isfile('login.token'):
-                    self.client.load_token('login.token')
-                else:
-                    self.client.login_in_terminal()
-                    self.client.save_token('login.token')
+                self.client.refresh_token()
 
     def add_url(self, url, live_id=None, zhihu_id=None):
         if url not in self.seen_urls:
