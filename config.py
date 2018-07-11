@@ -1,3 +1,5 @@
+import os
+
 API_VERSION = '3.0.42'
 APP_VERSION = '3.28.0'
 APP_BUILD = 'release'
@@ -9,8 +11,9 @@ APP_SECRET = b'ecbefbf6b17e47ecb9035107866380'
 
 TOKEN_FILE = 'token.json'
 CAPTCHA_FILE = 'capture.jpg'
-IMAGE_FOLDER = 'download/images/zhihu'
-AUDIO_FOLDER = 'download/audios'
+HERE = os.path.abspath(os.path.dirname(__file__))
+IMAGE_FOLDER = os.path.join(HERE, 'download', 'images', 'zhihu')
+AUDIO_FOLDER = os.path.join(HERE, 'download', 'audios')
 
 ZHIHU_API_ROOT = 'https://api.zhihu.com'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
