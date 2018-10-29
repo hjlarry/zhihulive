@@ -5,7 +5,7 @@ import time
 from pydub import AudioSegment
 
 from models import objects, Live, Message
-from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER
+from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER, EXCLUDE_LIVES
 
 from .zhihu import MyZhihuClient
 from .utils import BaseWebTransfer
@@ -31,6 +31,8 @@ class Crawler(BaseWebTransfer):
         rs = await response.json()
         if response.status == 200:
             for live in rs['data']:
+                if live['id'] in EXCLUDE_LIVES:
+                    continue
                 starts_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(live['starts_at']))
                 item, is_created = await objects.create_or_get(Live,
                                                                zhihu_id=live['id'],
@@ -45,11 +47,15 @@ class Crawler(BaseWebTransfer):
                                                                speaker_message_count=live['speaker_message_count'],
                                                                starts_at=starts_at
                                                                )
-                # 957358881807056896是关于霍金的免费live，太大了，不抓取
-                if is_created and not item.zhihu_id == 957358881807056896:
-                    zhihu_id = item.zhihu_id
-                    self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=item.id,
-                                 zhihu_id=zhihu_id)
+                # 是否已经完成下载
+                live_id = item.id
+                speaker_message_count = await objects.count(Message.select().where(Message.live == live_id,
+                                                                                   Message.is_played == True))
+                if item.speaker_message_count == speaker_message_count:
+                    continue
+                zhihu_id = item.zhihu_id
+                self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=live_id,
+                             zhihu_id=zhihu_id)
             if not rs['paging']['is_end']:
                 self.add_url(rs['paging']['next'])
 
@@ -60,6 +66,7 @@ class Crawler(BaseWebTransfer):
                 audio_url = message['audio']['url'] if 'audio' in message else None
                 img_url = message['image']['full']['url'] if 'image' in message else None
                 text = message['text'] if 'text' in message else None
+                is_played = message['is_played'] if 'is_played' in message else False
                 reply = ','.join(message['replies']) if 'replies' in message else None
                 created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(message['created_at']))
                 item, is_created = await objects.create_or_get(Message,
@@ -71,6 +78,7 @@ class Crawler(BaseWebTransfer):
                                                                audio_url=audio_url,
                                                                img_url=img_url,
                                                                text=text,
+                                                               is_played=is_played,
                                                                reply=reply,
                                                                created_at=created_at
                                                                )
@@ -130,14 +138,16 @@ class Crawler(BaseWebTransfer):
             response.release()
 
     async def work(self):
-        try:
-            while 1:
+        while 1:
+            try:
                 url, live_id, zhihu_id = await self.q.get()
                 await self.fetch(url, live_id, zhihu_id)
                 self.q.task_done()
-                asyncio.sleep(1)
-        except asyncio.CancelledError:
-            pass
+            except asyncio.CancelledError:
+                pass
+            except Exception as e:
+                print(e)
+            asyncio.sleep(1)
 
     async def crawl(self):
         await self.check_token()
