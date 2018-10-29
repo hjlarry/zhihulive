@@ -42,6 +42,7 @@ class Message(BaseModel):
     created_at = peewee.DateTimeField(null=True)
     live = peewee.ForeignKeyField(Live, null=True)
     is_transform = peewee.BooleanField(default=False)
+    is_played = peewee.BooleanField(default=False)
     transform_result = peewee.TextField(null=True)
 
     def __repr__(self):

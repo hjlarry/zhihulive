@@ -35,3 +35,4 @@ DB_NAME = 'zhihu'
 DB_USER = 'root'
 DB_PASS = 'root'
 
+EXCLUDE_LIVES = [957358881807056896]
