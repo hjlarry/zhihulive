@@ -66,7 +66,7 @@ class Crawler(BaseWebTransfer):
                 audio_url = message['audio']['url'] if 'audio' in message else None
                 img_url = message['image']['full']['url'] if 'image' in message else None
                 text = message['text'] if 'text' in message else None
-                is_played = message['is_played'] if 'is_played' in message else False
+                is_played = True if message['sender']['role'] == 'speaker' else False
                 reply = ','.join(message['replies']) if 'replies' in message else None
                 created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(message['created_at']))
                 item, is_created = await objects.create_or_get(Message,
