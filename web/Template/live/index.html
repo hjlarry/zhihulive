@@ -25,8 +25,8 @@
                 <td class="text-center">￥{{ item.price / 100 }}</td>
                 <td class="text-center">{{ item.liked_num }}</td>
                 <td class="text-center">
-                    <a href="{{url('live_content', id=item.id)}}" class="btn btn-outline-primary btn-sm">进入</a>
-                    <a href="{{url('live_detail', id=item.id)}}" class="btn btn-outline-info btn-sm">介绍</a>
+                    <a href="{{url('live_content', id=item.zhihu_id)}}" class="btn btn-outline-primary btn-sm">进入</a>
+                    <a href="{{url('live_detail', id=item.zhihu_id)}}" class="btn btn-outline-info btn-sm">介绍</a>
                 </td>
             </tr>
             {%- endfor %}

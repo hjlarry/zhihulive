@@ -33,21 +33,24 @@ async def index(request):
 
 @aiohttp_jinja2.template('live/detail.html')
 async def live_detail(request):
-    live_id = request.match_info.get('id', 1)
-    item = await objects.get(Live, id=live_id)
-    data = {
+    live_id = request.match_info.get('id')
+    if not live_id:
+        return {}
+    item = await objects.get(Live, zhihu_id=live_id)
+    return {
         'item': item
     }
-    return data
 
 
 @aiohttp_jinja2.template('message/index.html')
 async def message_list(request):
-    live_id = request.match_info.get('id', 1)
-    live = await objects.get(Live, id=live_id)
+    live_id = request.match_info.get('id')
+    if not live_id:
+        return {}
+    live = await objects.get(Live, zhihu_id=live_id)
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Message.select().where(Message.live == live_id).paginate(current_page, per_page)
+    query = Message.select().where(Message.live == live.id).paginate(current_page, per_page)
     items = await objects.execute(query)
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
