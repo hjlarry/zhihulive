@@ -9,9 +9,24 @@ from models import objects, Live, Message
 
 @aiohttp_jinja2.template('live/index.html')
 async def index(request):
-    items = await objects.execute(Live.select())
+    current_page = int(request.query.get('page', 1))
+    per_page = 20
+    query = Live.select().order_by(Live.zhihu_id).paginate(current_page, per_page)
+    counts = await objects.count(query, clear_limit=True)
+    items = await objects.execute(query)
+    # 向上取整
+    pages_count = (counts + per_page - 1) // per_page
+    start_page = current_page - 3 if current_page > 3 else 1
+    end_page = current_page + 4 if current_page < pages_count - 3 else pages_count + 1
     data = {
-        'items': items
+        'items': items,
+        'page': {
+            'counts': counts,
+            'current_page': current_page,
+            'pages_count': pages_count,
+            'start_page': start_page,
+            'end_page': end_page
+        }
     }
     return data
 
@@ -93,8 +108,8 @@ async def message_delete(request):
 
 
 app = web.Application()
-tmpl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'tmpl')
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(tmpl_path))
+template_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Template')
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(template_path))
 app['static_root_url'] = '/static'
 aiohttp_debugtoolbar.setup(app, intercept_redirects=False)
 app.router.add_routes([web.get('/', index, name='index'),
