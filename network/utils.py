@@ -45,6 +45,8 @@ class BaseWebTransfer:
         self.headers = {}
         self._session = None
         self.seen_urls = set()
+        self.finished_urls = set()
+        self.temp = 0
 
     @property
     def session(self):

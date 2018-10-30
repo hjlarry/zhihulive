@@ -5,14 +5,14 @@ import time
 from pydub import AudioSegment
 
 from models import objects, Live, Message
-from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER, EXCLUDE_LIVES
+from config import LIVE_API_URL, MESSAGE_API_URL, IMAGE_FOLDER, AUDIO_FOLDER, EXCLUDE_LIVES, ALL_LIVES, AUDIO_SEGMENT
 
 from .zhihu import MyZhihuClient
 from .utils import BaseWebTransfer
 
 
 class Crawler(BaseWebTransfer):
-    def __init__(self, max_tries=4, max_tasks=10, *, loop=None):
+    def __init__(self, max_tries=4, max_tasks=20, *, loop=None):
         super().__init__(max_tries, max_tasks, loop=loop)
         self.client = MyZhihuClient()
         self.client.auth(self)
@@ -59,6 +59,38 @@ class Crawler(BaseWebTransfer):
             if not rs['paging']['is_end']:
                 self.add_url(rs['paging']['next'])
 
+    async def parse_live_one(self, response):
+        live = await response.json()
+        if response.status == 200:
+            if int(live['id']) in EXCLUDE_LIVES:
+                return
+            starts_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(live['starts_at']))
+            item, is_created = await objects.create_or_get(Live,
+                                                           zhihu_id=live['id'],
+                                                           title=live['subject'],
+                                                           speaker=live['speaker']['member']['name'],
+                                                           speaker_description=live['speaker']['description'],
+                                                           live_description=live['description'],
+                                                           outline=live['outline'],
+                                                           seats_count=live['seats']['taken'],
+                                                           price=live['fee']['original_price'],
+                                                           liked_num=live['liked_num'],
+                                                           speaker_message_count=live['speaker_message_count'],
+                                                           starts_at=starts_at
+                                                           )
+            # 是否已经完成下载
+            live_id = item.id
+            zhihu_id = item.zhihu_id
+            speaker_message_count = await objects.count(Message.select().where(Message.live == live_id,
+                                                                               Message.is_played == True))
+            if item.speaker_message_count == speaker_message_count:
+                print('%s include' % zhihu_id)
+                return
+            if speaker_message_count != 0:
+                print(zhihu_id, item.speaker_message_count, speaker_message_count)
+            self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=''), live_id=live_id,
+                         zhihu_id=zhihu_id)
+
     async def parse_message_link(self, response, live_id, zhihu_id):
         rs = await response.json()
         if response.status == 200:
@@ -66,7 +98,7 @@ class Crawler(BaseWebTransfer):
                 audio_url = message['audio']['url'] if 'audio' in message else None
                 img_url = message['image']['full']['url'] if 'image' in message else None
                 text = message['text'] if 'text' in message else None
-                is_played = message['is_played'] if 'is_played' in message else False
+                is_played = True if message['sender']['role'] in ('speaker', 'cospeaker') else False
                 reply = ','.join(message['replies']) if 'replies' in message else None
                 created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(message['created_at']))
                 item, is_created = await objects.create_or_get(Message,
@@ -85,9 +117,10 @@ class Crawler(BaseWebTransfer):
 
                 if is_created and img_url:
                     item.img_path = await self.convert_local_image(img_url)
+                    await objects.update(item)
                 elif is_created and audio_url:
                     item.audio_path = await self.convert_local_audio(audio_url)
-                await objects.update(item)
+                    await objects.update(item)
 
             if rs['unload_count'] > 0:
                 self.add_url(MESSAGE_API_URL.format(zhihu_id=zhihu_id, before_id=rs['data'][0]['id']), live_id=live_id,
@@ -104,18 +137,22 @@ class Crawler(BaseWebTransfer):
         return path
 
     async def convert_local_audio(self, audio_url):
-        audio_name = audio_url.split('/')[-1] + '.wav'
+        if AUDIO_SEGMENT:
+            audio_name = audio_url.split('/')[-1] + '.wav'
+        else:
+            audio_name = audio_url.split('/')[-1] + '.acc'
         path = os.path.join(AUDIO_FOLDER, audio_name)
         if not os.path.exists(path):
             async with self.session.get(audio_url) as resp:
                 content = await resp.read()
                 with open(path, 'wb') as f:
                     f.write(content)
-                aac = AudioSegment.from_file(path)
-                aac.export(path, format='wav')
+                if AUDIO_SEGMENT:
+                    aac = AudioSegment.from_file(path)
+                    aac.export(path, format='wav')
         return path
 
-    async def fetch(self, url, live_id=None, zhihu_id=None):
+    async def fetch(self, url, live_id=None, zhihu_id=None, live_lists=None):
         tries = 0
         while tries < self.max_tries:
             try:
@@ -130,23 +167,25 @@ class Crawler(BaseWebTransfer):
         try:
             if live_id:
                 await self.parse_message_link(response, live_id, zhihu_id)
+            elif live_lists:
+                await self.parse_live_one(response)
             else:
                 await self.parse_live_link(response)
             print('{} has finished'.format(url))
-
         finally:
             response.release()
 
-    async def work(self):
+    async def work(self, live_lists=None):
         while 1:
             try:
                 url, live_id, zhihu_id = await self.q.get()
-                await self.fetch(url, live_id, zhihu_id)
+                await self.fetch(url, live_id, zhihu_id, live_lists)
                 self.q.task_done()
+                self.finished_urls.add(url)
             except asyncio.CancelledError:
                 pass
             except Exception as e:
-                print(e)
+                print('work %s' % e)
             asyncio.sleep(1)
 
     async def crawl(self):
@@ -155,6 +194,20 @@ class Crawler(BaseWebTransfer):
         self.t0 = time.time()
         await self.q.join()
         self.add_url(LIVE_API_URL)
+        await self.q.join()
+        self.t1 = time.time()
+        for w in self.__workers:
+            w.cancel()
+
+        await self.close()
+
+    async def crawl_vip(self):
+        await self.check_token()
+        self.__workers = [asyncio.Task(self.work(live_lists=True), loop=self.loop) for _ in range(self.max_tasks)]
+        self.t0 = time.time()
+        await self.q.join()
+        for x in ALL_LIVES:
+            self.add_url('https://api.zhihu.com/lives/%s' % x)
         await self.q.join()
         self.t1 = time.time()
         for w in self.__workers:
