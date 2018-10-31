@@ -140,7 +140,7 @@ class Crawler(BaseWebTransfer):
         if AUDIO_SEGMENT:
             audio_name = audio_url.split('/')[-1] + '.wav'
         else:
-            audio_name = audio_url.split('/')[-1] + '.acc'
+            audio_name = audio_url.split('/')[-1] + '.aac'
         path = os.path.join(AUDIO_FOLDER, audio_name)
         if not os.path.exists(path):
             async with self.session.get(audio_url) as resp:

@@ -54,13 +54,11 @@ with open(os.path.join(HERE, 'big_live.txt'), 'r', encoding='utf-8') as file:
 #             print(x)
 
 
-path = os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.acc')
-
 AUDIO_SEGMENT = True
 
 try:
-    aac = AudioSegment.from_file(path)
-    aac.export(path, format='wav')
+    aac = AudioSegment.from_file(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.aac'))
+    aac.export(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.wav'), format='wav')
 except FileNotFoundError:
-    warn("未找到ffmpeg, 禁用acc转换为wav", RuntimeWarning)
+    print('未找到ffmpeg, 禁用acc转换为wav')
     AUDIO_SEGMENT = False

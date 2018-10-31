@@ -7,8 +7,10 @@
             <thead>
             <tr>
                 <th class="text-center" width="50">ID</th>
+                <th class="text-center" width="240">zhihu_id</th>
                 <th>标题</th>
                 <th width="200" class="text-center">作者</th>
+                <th width="200" class="text-center">开始时间</th>
                 <th width="100" class="text-center">参与人数</th>
                 <th width="100" class="text-center">价格</th>
                 <th width="100" class="text-center">点赞人数</th>
@@ -19,8 +21,10 @@
             {%- for item in items %}
             <tr>
                 <td class="text-center">{{ item.id }}</td>
+                <td class="text-center">{{ item.zhihu_id }}</td>
                 <td>{{ item.title }}</td>
                 <td class="text-center">{{ item.speaker }}</td>
+                <td class="text-center">{{ item.starts_at }}</td>
                 <td class="text-center">{{ item.seats_count }}</td>
                 <td class="text-center">￥{{ item.price / 100 }}</td>
                 <td class="text-center">{{ item.liked_num }}</td>
