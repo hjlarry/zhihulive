@@ -35,6 +35,15 @@ def crawl():
 
 
 @click.command()
+def crawlvip():
+    click.echo('Start crawl_list')
+    loop = asyncio.get_event_loop()
+    crawler = Crawler(loop=loop)
+    loop.run_until_complete(crawler.crawl_vip())
+    click.echo('Finished in {:.3f} seconds'.format(crawler.t1 - crawler.t0))
+
+
+@click.command()
 def transform():
     click.echo('Start transform')
     loop = asyncio.get_event_loop()
@@ -53,8 +62,10 @@ def webserver():
 cli.add_command(initdb)
 cli.add_command(dropdb)
 cli.add_command(crawl)
+cli.add_command(crawlvip)
 cli.add_command(transform)
 cli.add_command(webserver)
 
 if __name__ == '__main__':
+    from config import *
     cli()

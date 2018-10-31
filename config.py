@@ -1,4 +1,6 @@
 import os
+from warnings import warn
+from pydub import AudioSegment
 
 API_VERSION = '3.0.42'
 APP_VERSION = '3.28.0'
@@ -12,8 +14,13 @@ APP_SECRET = b'ecbefbf6b17e47ecb9035107866380'
 TOKEN_FILE = 'token.json'
 CAPTCHA_FILE = 'capture.jpg'
 HERE = os.path.abspath(os.path.dirname(__file__))
-IMAGE_FOLDER = os.path.join(HERE, 'download', 'images', 'zhihu')
-AUDIO_FOLDER = os.path.join(HERE, 'download', 'audios')
+DOWNLOAD_FOLDER = os.path.join(HERE, 'download')
+IMAGE_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'images')
+AUDIO_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'audios')
+
+for x in [DOWNLOAD_FOLDER, IMAGE_FOLDER, AUDIO_FOLDER]:
+    if not os.path.exists(x):
+        os.mkdir(x)
 
 ZHIHU_API_ROOT = 'https://api.zhihu.com'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
@@ -29,10 +36,29 @@ BAIDU_TOKEN_URL = 'https://openapi.baidu.com/oauth/2.0/token'
 BAIDU_SERVER_URL = 'http://vop.baidu.com/server_api'
 
 
-
-DB_HOST = '127.0.0.1'
+DB_HOST = '192.168.56.128'
 DB_NAME = 'zhihu'
-DB_USER = 'root'
-DB_PASS = 'root'
+DB_USER = 'zhihu'
+DB_PASS = 'password'
 
-EXCLUDE_LIVES = [957358881807056896]
+
+with open(os.path.join(HERE, 'live_all.txt'), 'r', encoding='utf-8') as file:
+    ALL_LIVES = [int(str(line).split(' ')[0]) for line in file.readlines()]
+
+with open(os.path.join(HERE, 'big_live.txt'), 'r', encoding='utf-8') as file:
+    EXCLUDE_LIVES = [int(str(line)) for line in file.readlines()]
+
+# with open(os.path.join(HERE, 'live_all.txt'), 'r', encoding='utf-8') as file:
+#     for x in file.readlines():
+#         if int(x.split(' ')[1]) - int(x.split(' ')[2]) > 5:
+#             print(x)
+
+
+AUDIO_SEGMENT = True
+
+try:
+    aac = AudioSegment.from_file(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.aac'))
+    aac.export(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.wav'), format='wav')
+except FileNotFoundError:
+    print('未找到ffmpeg, 禁用acc转换为wav')
+    AUDIO_SEGMENT = False

@@ -23,30 +23,47 @@
 
 ### 安装及使用
 1、创建MYSQL数据库，需要数据库字符集为utf8mb4，否则emoji表情字符串导致无法插入数据
-
+```sql
+ALTER DATABASE zhihu CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+ALTER TABLE message CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE live CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 2、安装pipenv
-```angular2html
+```bash
+# 注意python版本要 3.5.3+, 最好要选择3.6+
 pip install pipenv
 ```
 3、安装依赖，并修改config.py内的相关数据库配置
-```angular2html
+```bash
+# 不推荐使用 pipenv
 pipenv install
+# 推荐使用 pip install -r requirements.txt -i http://pypi.douban.com/simple/
 ```
 4、建表
-```angular2html
+```bash
 pipenv shell
 python run.py initdb
 ```
 5、爬取(命令行内输入知乎用户名密码)
-```angular2html
+```bash
 python run.py crawl
 ```
+5.1、爬取VIP LIVE 全部(需要先输入账号密码, 且在vip有效内)
+```bash
+# 下载的文件为 live_all.txt
+# 默认排除下载的文件为 big_live.txt (默认规则大于500消息), 如果要下载, 清空文件即可(不是删除)
+# 注意, problem.txt 为部分live有谜之bug, 部分数据无法抓取, 所以如果断点下载这部分会出错
+# 建议, 先不下载 (可以复制problem中内容到big_live中)
+# 在i5平台, 8G内存, 100M带宽下, 一次全部下载大概8小时, 全程占用50m带宽, 最后acc+img 文件80G左右
+python run.py crawlvip
+```
 6、转化
-```angular2html
+```bash
+# 未安装 ffmpeg套件, 需要先转换 文件
 python run.py transform
 ```
 7、启动管理后台
-```angular2html
+```bash
 python run.py webserver
 ```
 
