@@ -1,11 +1,13 @@
 import asyncio
 import click
+import threading
 from aiohttp import web
 
 from network.crawl import Crawler
 from network.transform import Transformer
 from models import create_table, drop_table
 from web.main import app
+from download.main import run as media_server
 
 
 @click.group()
@@ -54,7 +56,8 @@ def transform():
 
 @click.command()
 def webserver():
-    click.echo('Start webserver')
+    click.echo('Start web server')
+    # threading.Thread(target=media_server, args=()).start()
     app.router.add_static('/static', 'web/static')
     web.run_app(app)
 
@@ -67,5 +70,5 @@ cli.add_command(transform)
 cli.add_command(webserver)
 
 if __name__ == '__main__':
-    from config import *
+    # from config import *
     cli()

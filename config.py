@@ -1,6 +1,4 @@
 import os
-from warnings import warn
-from pydub import AudioSegment
 
 API_VERSION = '3.0.42'
 APP_VERSION = '3.28.0'
@@ -56,9 +54,10 @@ with open(os.path.join(HERE, 'big_live.txt'), 'r', encoding='utf-8') as file:
 
 AUDIO_SEGMENT = True
 
-try:
-    aac = AudioSegment.from_file(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.aac'))
-    aac.export(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.wav'), format='wav')
-except FileNotFoundError:
-    print('未找到ffmpeg, 禁用acc转换为wav')
-    AUDIO_SEGMENT = False
+# try:
+#     from pydub import AudioSegment
+#     aac = AudioSegment.from_file(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.aac'))
+#     aac.export(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.wav'), format='wav')
+# except FileNotFoundError:
+#     print('未找到ffmpeg, 禁用acc转换为wav')
+#     AUDIO_SEGMENT = False
