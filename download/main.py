@@ -55,7 +55,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         '.py': 'text/plain',
         '.c': 'text/plain',
         '.h': 'text/plain',
-        '.acc': 'audio/mp4',
+        '.aac': 'audio/mp4',
         '.ogg': 'audio/ogg'
         })
 

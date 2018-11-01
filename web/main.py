@@ -115,9 +115,10 @@ async def live_next(request):
         data = {'items': [x._data for x in list(items)], 'has_next': False}
 
     # 添加本地路径的数据
-    data['items'] = [dict(**x,
-                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(x['audio_path']).split('/')[-1] + '.aac',
-                          local_img_url='http://127.0.0.1:8000/download/images/' + str(x['img_path']).split('/')[-1])
+    data['items'] = [dict(
+                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(os.path.basename(x['audio_path'] or '')),
+                          local_img_url='http://127.0.0.1:8000/download/images/' + str(os.path.basename(x['img_path'] or '')),
+                          **x)
                      for x in data['items']]
     """
     处理, 主讲人回复问题
@@ -137,10 +138,8 @@ async def live_next(request):
 
     # 添加本地路径的数据
     reply_mesage = {x._data['zhihu_id']:
-                        dict(local_audio_url='http://127.0.0.1:8000/download/audios/' +
-                                             str(x._data['audio_path']).split('/')[-1] + '.aac',
-                             local_img_url='http://127.0.0.1:8000/download/images/' +
-                                           str(x._data['img_path']).split('/')[-1],
+                        dict(local_audio_url='http://127.0.0.1:8000/download/audios/' + str(os.path.basename(x._data['audio_path'] or '')),
+                             local_img_url='http://127.0.0.1:8000/download/images/' + str(os.path.basename(x._data['img_path'] or '')),
                              **dict(x._data))
                     for x in list(reply_mesage)}
     # 添加被回复的内容

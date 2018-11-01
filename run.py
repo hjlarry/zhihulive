@@ -64,7 +64,7 @@ def transform():
 @click.command()
 def webserver():
     click.echo('Start web server')
-    threading.Thread(target=media_server, args=()).start()
+    # threading.Thread(target=media_server, args=()).start()
     app.router.add_static('/static', 'web/static')
     web.run_app(app)
 

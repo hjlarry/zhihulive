@@ -84,7 +84,7 @@
             $.each(res.items, function (i, v) {
                 if (v.is_played) {
                     if (v.in_reply_to) {
-                        DOM += '<div data-id="758036977177096192" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                        DOM += '<div data-id="'+v.zhihu_id+'" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
                             '    <div class="MessageItem-container-2ufC">' +
                             '        <div class="MessageItem-info-3g0Q">' +
                             '            <span class="MessageItem-name-1pbG">'+v.sender+'</span>' +
@@ -97,7 +97,7 @@
                             '                        <hr class="MessageItem-split-3r5G"/>' +
                             '                        <audio controls="" preload="none"' +
                             '                               style="width: 375px; height: 54px">' +
-                            '                            <source src="' + v.local_audio_url + '" type="audio/mp4">' +
+                            '                            <source src="' + v.local_audio_url + '">' +
                             '                        </audio>' +
                             '                    </div>' +
                             '                </div>' +
@@ -146,7 +146,7 @@
                             '   <div class="MessageItem-content-sfT0" style="min-width: 100%;">' +
                             '    <div class="MessageItem-playerContainer-1PN6">' +
                             '      <audio controls preload="none" style="width: 375px; height: 54px">' +
-                            '          <source src="' + v.local_audio_url + '" type="audio/mp4">' +
+                            '          <source src="' + v.local_audio_url + '">' +
                             '      </audio>' +
                             '    </div>' +
                             '   </div>' +
