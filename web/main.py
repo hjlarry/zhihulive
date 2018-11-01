@@ -4,6 +4,7 @@ import json
 import aiohttp_debugtoolbar
 import aiohttp_jinja2
 import jinja2
+from itertools import chain
 from aiohttp import web
 
 from models import objects, Live, Message
@@ -52,7 +53,8 @@ async def live_content(request):
     live = await objects.get(Live, zhihu_id=live_id)
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Message.select().where(Message.live == live.id).order_by(Message.zhihu_id.asc()).paginate(current_page, per_page)
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False). \
+        order_by(Message.zhihu_id.asc()).paginate(current_page, per_page)
     items = await objects.execute(query)
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
@@ -80,13 +82,13 @@ async def live_show(request):
     if not live_id:
         return {}
     live = await objects.get(Live, zhihu_id=live_id)
-    query = Message.select().where(Message.live == live.id)
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False)
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
     data = {
         'live': live,
         'page': {
-            'counts': counts // 20,
+            'counts': counts // 40,
         }
     }
     return data
@@ -98,8 +100,9 @@ async def live_next(request):
         return {}
     live = await objects.get(Live, zhihu_id=live_id)
     current_page = int(request.query.get('page', 1))
-    per_page = 40
-    query = Message.select().where(Message.live == live.id).order_by(Message.zhihu_id.asc()).paginate(current_page, per_page + 1)
+    per_page = 100
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False) \
+        .order_by(Message.zhihu_id.asc()).paginate(current_page, per_page + 1)
     items = await objects.execute(query)
 
     def default(o):
@@ -110,8 +113,43 @@ async def live_next(request):
         data = {'items': [x._data for x in list(items)[:-1]], 'has_next': True}
     else:
         data = {'items': [x._data for x in list(items)], 'has_next': False}
-    return web.json_response(json.loads(json.dumps(data, default=default)))
 
+    # 添加本地路径的数据
+    data['items'] = [dict(**x,
+                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(x['audio_url']).split('/')[-1] + '.aac',
+                          local_img_url='http://127.0.0.1:8000/download/images/' + str(x['img_url']).split('/')[-1])
+                     for x in data['items']]
+    """
+    处理, 主讲人回复问题
+    1: 获取所有的回复
+    2: 把回复插入列表
+    """
+    reply_data = {}
+    for k, v in enumerate(data['items']):
+        if v['reply']:
+            reply_data[k] = [int(x) for x in str(v['reply']).split(',')]
+
+    reply_mesage = []
+    if reply_data:
+        _temp = list(chain(*reply_data.values()))
+        query = Message.select().where(Message.zhihu_id.in_(_temp))
+        reply_mesage = await objects.execute(query)
+
+    # 添加本地路径的数据
+    reply_mesage = {x._data['zhihu_id']:
+                        dict(local_audio_url='http://127.0.0.1:8000/download/audios/' +
+                                             str(x._data['audio_url']).split('/')[-1] + '.aac',
+                             local_img_url='http://127.0.0.1:8000/download/images/' +
+                                           str(x._data['img_url']).split('/')[-1],
+                             **dict(x._data))
+                    for x in list(reply_mesage)}
+    # 添加被回复的内容
+    for k, v in reply_data.items():
+        data['items'][k] = [data['items'][k]] + [dict(in_reply_to=data['items'][k],
+                                                      **reply_mesage.get(int(x), {})) for x in v]
+    data['items'] = [[x] if isinstance(x, dict) else x for x in data['items']]
+    data['items'] = list(chain(*data['items']))
+    return web.json_response(json.loads(json.dumps(data, default=default)))
 
 
 @aiohttp_jinja2.template('message/detail.html')
@@ -147,9 +185,9 @@ async def message_edit(request):
 async def message_delete(request):
     message_id = request.match_info.get('id')
     live_id = request.query.get('live_id', 1)
-    item = await objects.get(Message, id=message_id)
-    await objects.delete(item)
-    return web.HTTPFound(app.router['live_content'].url_for(id=live_id))
+    page = request.query.get('page', 1)
+    await objects.execute(Message.update(is_deleted=True).where(Message.id == message_id))
+    return web.HTTPFound(app.router['live_content'].url_for(id=live_id).with_query({'page': page}))
 
 
 app = web.Application()
