@@ -116,8 +116,8 @@ async def live_next(request):
 
     # 添加本地路径的数据
     data['items'] = [dict(**x,
-                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(x['audio_url']).split('/')[-1] + '.aac',
-                          local_img_url='http://127.0.0.1:8000/download/images/' + str(x['img_url']).split('/')[-1])
+                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(x['audio_path']).split('/')[-1] + '.aac',
+                          local_img_url='http://127.0.0.1:8000/download/images/' + str(x['img_path']).split('/')[-1])
                      for x in data['items']]
     """
     处理, 主讲人回复问题
@@ -138,9 +138,9 @@ async def live_next(request):
     # 添加本地路径的数据
     reply_mesage = {x._data['zhihu_id']:
                         dict(local_audio_url='http://127.0.0.1:8000/download/audios/' +
-                                             str(x._data['audio_url']).split('/')[-1] + '.aac',
+                                             str(x._data['audio_path']).split('/')[-1] + '.aac',
                              local_img_url='http://127.0.0.1:8000/download/images/' +
-                                           str(x._data['img_url']).split('/')[-1],
+                                           str(x._data['img_path']).split('/')[-1],
                              **dict(x._data))
                     for x in list(reply_mesage)}
     # 添加被回复的内容
