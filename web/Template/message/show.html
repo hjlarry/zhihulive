@@ -138,6 +138,26 @@
                             '  </div>' +
                             ' </div>' +
                             '</div>'
+                    }else if (v.type === 'multiimage'){
+                        $.each(v.local_img_url.split("|"), function (i_img, v_img) {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '      <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0 MessageItem-fullWidth-i3vj">' +
+                            '    <div class="ImageAttachment-wrapper-2YYB ImageAttachment-isAlignStart-1Cae">' +
+                            '     <div id="Zoomable-root-3lUI" class="min">' +
+                            '      <div class="FixedSizeImage-container" style="width: 375px; height: 255.6px;">' +
+                            '       <img src="' + v_img + '"' +
+                            '            class="FixedSizeImage-image-27lk" style="height: 100%;width: auto;" />' +
+                            '      </div>' +
+                            '     </div>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                        });
                     } else if (v.type === 'audio') {
                         DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
                             ' <div class="MessageItem-container-2ufC">' +
@@ -148,6 +168,45 @@
                             '      <audio controls preload="none" style="width: 375px; height: 54px">' +
                             '          <source src="' + v.local_audio_url + '">' +
                             '      </audio>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                    }else if (v.type === 'file') {
+                        DOM += '<div data-id="'+v.zhihu_id+'" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            '    <div class="MessageItem-container-2ufC">' +
+                            '        <div class="MessageItem-info-3g0Q">' +
+                            '            <span class="MessageItem-name-1pbG">'+ v.sender +'</span>' +
+                            '            <div class="MessageItem-content-sfT0">' +
+                            '                <div class="Bubble-bubble-3QtP Bubble-blue-hRSs">' +
+                            '                    <a class="FileAttachment-file-2HXA" href="'+v.local_file_url+'"' +
+                            '                        target="_blank" download="'+v.local_file_url.split('/').pop()+'">' +
+                            '                        <div class="FileAttachment-content-1RQI">' +
+                            '                            <div class="FileAttachment-name-3CoS">'+v.local_file_url.split('/').pop()+'</div>' +
+                            '                        </div>' +
+                            '                        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor"' +
+                            '                            class="FileAttachment-arrow-2dfw" data-name="arrow">' +
+                            '                            <title>arrow</title>' +
+                            '                            <path d="M19.608 11.291a1.04 1.04 0 0 0-1.428-.02l-1.88 1.782a.968.968 0 0 0-.02 1.388l9.49 9.556-9.49 9.555a.973.973 0 0 0 .02 1.388l1.88 1.782a1.036 1.036 0 0 0 1.428-.02L31.703 24.7a.991.991 0 0 0 0-1.404L19.608 11.29z"' +
+                            '                                fill-rule="evenodd"></path>' +
+                            '                        </svg>' +
+                            '                    </a>' +
+                            '                </div>' +
+                            '            </div>' +
+                            '        </div>' +
+                            '    </div>' +
+                            '</div>'
+                    }else if (v.type === 'video') {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '   <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0" style="min-width: 100%;">' +
+                            '    <div class="MessageItem-playerContainer-1PN6">' +
+                            '     <video width="375" height="280" controls>\n' +
+                            '       <source src="'+v.local_video_url+'">\n' +
+                            '     </video>' +
                             '    </div>' +
                             '   </div>' +
                             '  </div>' +

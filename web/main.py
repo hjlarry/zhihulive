@@ -7,6 +7,7 @@ import jinja2
 from itertools import chain
 from aiohttp import web
 
+import config
 from models import objects, Live, Message
 
 
@@ -116,8 +117,11 @@ async def live_next(request):
 
     # 添加本地路径的数据
     data['items'] = [dict(
-                          local_audio_url='http://127.0.0.1:8000/download/audios/' + str(os.path.basename(x['audio_path'] or '')),
-                          local_img_url='http://127.0.0.1:8000/download/images/' + str(os.path.basename(x['img_path'] or '')),
+                          local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
+                          local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
+                          local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x['img_path'] or '')),
+                          local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                                                  for item in str(x['img_path']).split('|')]),
                           **x)
                      for x in data['items']]
     """
@@ -138,8 +142,12 @@ async def live_next(request):
 
     # 添加本地路径的数据
     reply_mesage = {x._data['zhihu_id']:
-                        dict(local_audio_url='http://127.0.0.1:8000/download/audios/' + str(os.path.basename(x._data['audio_path'] or '')),
-                             local_img_url='http://127.0.0.1:8000/download/images/' + str(os.path.basename(x._data['img_path'] or '')),
+                        dict(
+                            local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
+                            local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
+                            local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x._data['img_path'] or '')),
+                            local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                                                    for item in str(x._data['img_path']).split('|')]),
                              **dict(x._data))
                     for x in list(reply_mesage)}
     # 添加被回复的内容

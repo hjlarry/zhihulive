@@ -31,10 +31,10 @@ class Live(BaseModel):
 
 class Message(BaseModel):
     zhihu_id = peewee.BigIntegerField(unique=True)
-    audio_url = peewee.CharField(null=True)
-    audio_path = peewee.CharField(null=True)
-    img_url = peewee.CharField(null=True)
-    img_path = peewee.CharField(null=True)
+    audio_url = peewee.CharField(null=True, max_length=3000)
+    audio_path = peewee.CharField(null=True, max_length=3000)
+    img_url = peewee.CharField(null=True, max_length=3000)
+    img_path = peewee.CharField(null=True, max_length=3000)
     sender = peewee.CharField(null=True)
     text = peewee.TextField(null=True)
     reply = peewee.TextField(null=True)
