@@ -56,6 +56,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         '.c': 'text/plain',
         '.h': 'text/plain',
         '.aac': 'audio/mp4',
+        '.acc': 'audio/mp4',  # bug
         '.ogg': 'audio/ogg'
         })
 
