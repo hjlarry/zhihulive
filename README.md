@@ -10,7 +10,6 @@
 ![效果图](ScreenShot/1.png)
 ![效果图](ScreenShot/2.png)
 ![效果图](ScreenShot/3.png)
-
 ![效果图](ScreenShot/4.png)
 
 
@@ -66,7 +65,11 @@ python run.py transform
 ```bash
 python run.py webserver
 ```
-
+8、清理数据
+```bash
+# 调整主讲人回复到问题后面, 运行后可以解决回复多次展示的问题
+python run.py clean_data
+```
 ### 备注
 * [之前版本](https://github.com/hjlarry/zhihulive/tree/second_version)使用不同技术栈开发
 * 欢迎提PR

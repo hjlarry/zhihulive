@@ -1,6 +1,4 @@
 import os
-from warnings import warn
-from pydub import AudioSegment
 
 API_VERSION = '3.0.42'
 APP_VERSION = '3.28.0'
@@ -17,8 +15,15 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 DOWNLOAD_FOLDER = os.path.join(HERE, 'download')
 IMAGE_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'images')
 AUDIO_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'audios')
+FILE_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'file')
+VIDEO_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'video')
 
-for x in [DOWNLOAD_FOLDER, IMAGE_FOLDER, AUDIO_FOLDER]:
+LOCAL_AUDIO_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/audios'
+LOCAL_IMG_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/images'
+LOCAL_FILE_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/file'
+LOCAL_VIDEO_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/video'
+
+for x in [DOWNLOAD_FOLDER, IMAGE_FOLDER, AUDIO_FOLDER, FILE_FOLDER, VIDEO_FOLDER]:
     if not os.path.exists(x):
         os.mkdir(x)
 
@@ -46,7 +51,7 @@ with open(os.path.join(HERE, 'live_all.txt'), 'r', encoding='utf-8') as file:
     ALL_LIVES = [int(str(line).split(' ')[0]) for line in file.readlines()]
 
 with open(os.path.join(HERE, 'big_live.txt'), 'r', encoding='utf-8') as file:
-    EXCLUDE_LIVES = [int(str(line)) for line in file.readlines()]
+    EXCLUDE_LIVES = [int(str(line.split(' ')[0])) for line in file.readlines()]
 
 # with open(os.path.join(HERE, 'live_all.txt'), 'r', encoding='utf-8') as file:
 #     for x in file.readlines():
@@ -54,11 +59,12 @@ with open(os.path.join(HERE, 'big_live.txt'), 'r', encoding='utf-8') as file:
 #             print(x)
 
 
-AUDIO_SEGMENT = True
+AUDIO_SEGMENT = False
 
 try:
+    from pydub import AudioSegment
     aac = AudioSegment.from_file(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.aac'))
     aac.export(os.path.join(HERE, '00007bc50d1921b184e325ff0afc0961.wav'), format='wav')
+    AUDIO_SEGMENT = True
 except FileNotFoundError:
     print('未找到ffmpeg, 禁用acc转换为wav')
-    AUDIO_SEGMENT = False

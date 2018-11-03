@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html data-no-touch="true" data-theme="light">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"/>
+    <link href="{{ static('vendors.css') }}" rel="stylesheet"/>
+    <link href="{{ static('app.css') }}" rel="stylesheet"/>
+    <link href="{{ static('live.css') }}" rel="stylesheet"/>
+    <script src="{{ static('jquery-3.3.1.min.js') }}"></script>
+    <style>
+        .min {
+            width: 100px;
+            height: auto;
+        }
+    </style>
+    <script>
+
+    </script>
+    <title>{{ live.title }}--知乎live </title>
+</head>
+<body data-app-release="26-0ffdb62c" class="">
+<div id="root">
+    <div class="App-root-yDWl App-hasTopNavBar-w3Tm">
+        <div class="Layout-layout-2UiI Layout-fixedHeight-34H_ Layout-hasSideBar-25X6 Layout-isDesktop-7lvR Layout-hasTopNavBar-3rvP">
+            <div class="Layout-main-2ROT">
+                <div class="MessagesPageMain-main-1_pw">
+                    <div class="MessagesHeader-header-1wi8">
+                        <h1 class="MessagesHeader-title-2leL utils-textEllipsis-3d6Q">{{ live.title }}
+                            (参与人数:{{ live.seats_count }})</h1>
+                    </div>
+                    <div id="Scrollable" class="MessagesPageMain-scrollable-2zw_ MessagesInfinity-scrollable-3zh8">
+                        <div class="MessagesInfinity-infinity-4X23 Receptacle-root-C0q8">
+                        </div>
+                        <div class="load-msg load-more" style="text-align: center;">查看更多历史消息</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    var zhihu_id = '{{ live.zhihu_id }}';
+    var searchCondition = {
+        page: 1
+    };
+    var has_next = true;
+    RequestServices('/live_next/' + zhihu_id, 'get', searchCondition, SuccessCB);
+    function RequestServices(url, type, data, successCB, errorCB) {
+        var payload = {
+            url: url,
+            dataType: 'json',
+            type: type,
+            data: data,
+            success: function (res) {
+                console.log(res);
+                if (successCB) {
+                    successCB(res);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log(XMLHttpRequest.status);
+                console.log(XMLHttpRequest.readyState);
+                console.log(textStatus);
+                if (XMLHttpRequest.status === 400 && errorCB) {
+                    errorCB(XMLHttpRequest.responseJSON)
+                }
+            }
+
+        };
+        if (type !== 'get') {
+            payload['headers'] = {
+                "Content-Type": 'application/json,charset=utf-8',
+                'Accept': 'application/json'
+            }
+        }
+        $.ajax(payload);
+    }
+
+    function SuccessCB(res) {
+        var DOM = '';
+        if (res.items && res.items.length > 0) {
+            $.each(res.items, function (i, v) {
+                if (v.is_played) {
+                    if (v.in_reply_to) {
+                        DOM += '<div data-id="'+v.zhihu_id+'" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            '    <div class="MessageItem-container-2ufC">' +
+                            '        <div class="MessageItem-info-3g0Q">' +
+                            '            <span class="MessageItem-name-1pbG">'+v.sender+'</span>' +
+                            '            <div class="MessageItem-content-sfT0" style="min-width: 11.3%;">' +
+                            '                <div class="MessageItem-playerContainer-1PN6">' +
+                            '                    <div class="Bubble-bubble-3QtP MessageItem-playerContainerChild-cgnp Bubble-blue-hRSs">' +
+                            '                        <div class="TextAttachment-text-QdRA">' +
+                            '                            <span class="Linkify">'+v.in_reply_to.text+'</span>' +
+                            '                        </div>' +
+                            '                        <hr class="MessageItem-split-3r5G"/>' +
+                            '                        <audio controls="" preload="none"' +
+                            '                               style="width: 375px; height: 54px">' +
+                            '                            <source src="' + v.local_audio_url + '">' +
+                            '                        </audio>' +
+                            '                    </div>' +
+                            '                </div>' +
+                            '            </div>' +
+                            '        </div>' +
+                            '    </div>' +
+                            '</div>'
+                    } else if (v.type === 'text') {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '   <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0">' +
+                            '    <div class="Bubble-bubble-3QtP Bubble-blue-hRSs">' +
+                            '     <div class="TextAttachment-text-QdRA">' +
+                            '      <span class="Linkify">' + v.text + '</span>' +
+                            '     </div>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                    } else if (v.type === 'image') {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '      <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0 MessageItem-fullWidth-i3vj">' +
+                            '    <div class="ImageAttachment-wrapper-2YYB ImageAttachment-isAlignStart-1Cae">' +
+                            '     <div id="Zoomable-root-3lUI" class="min">' +
+                            '      <div class="FixedSizeImage-container" style="width: 375px; height: 255.6px;">' +
+                            '       <img src="' + v.local_img_url + '"' +
+                            '            class="FixedSizeImage-image-27lk" style="height: 100%;width: auto;" />' +
+                            '      </div>' +
+                            '     </div>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                    }else if (v.type === 'multiimage'){
+                        $.each(v.local_img_url.split("|"), function (i_img, v_img) {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '      <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0 MessageItem-fullWidth-i3vj">' +
+                            '    <div class="ImageAttachment-wrapper-2YYB ImageAttachment-isAlignStart-1Cae">' +
+                            '     <div id="Zoomable-root-3lUI" class="min">' +
+                            '      <div class="FixedSizeImage-container" style="width: 375px; height: 255.6px;">' +
+                            '       <img src="' + v_img + '"' +
+                            '            class="FixedSizeImage-image-27lk" style="height: 100%;width: auto;" />' +
+                            '      </div>' +
+                            '     </div>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                        });
+                    } else if (v.type === 'audio') {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '   <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0" style="min-width: 100%;">' +
+                            '    <div class="MessageItem-playerContainer-1PN6">' +
+                            '      <audio controls preload="none" style="width: 375px; height: 54px">' +
+                            '          <source src="' + v.local_audio_url + '">' +
+                            '      </audio>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                    }else if (v.type === 'file') {
+                        DOM += '<div data-id="'+v.zhihu_id+'" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            '    <div class="MessageItem-container-2ufC">' +
+                            '        <div class="MessageItem-info-3g0Q">' +
+                            '            <span class="MessageItem-name-1pbG">'+ v.sender +'</span>' +
+                            '            <div class="MessageItem-content-sfT0">' +
+                            '                <div class="Bubble-bubble-3QtP Bubble-blue-hRSs">' +
+                            '                    <a class="FileAttachment-file-2HXA" href="'+v.local_file_url+'"' +
+                            '                        target="_blank" download="'+v.local_file_url.split('/').pop()+'">' +
+                            '                        <div class="FileAttachment-content-1RQI">' +
+                            '                            <div class="FileAttachment-name-3CoS">'+v.local_file_url.split('/').pop()+'</div>' +
+                            '                        </div>' +
+                            '                        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor"' +
+                            '                            class="FileAttachment-arrow-2dfw" data-name="arrow">' +
+                            '                            <title>arrow</title>' +
+                            '                            <path d="M19.608 11.291a1.04 1.04 0 0 0-1.428-.02l-1.88 1.782a.968.968 0 0 0-.02 1.388l9.49 9.556-9.49 9.555a.973.973 0 0 0 .02 1.388l1.88 1.782a1.036 1.036 0 0 0 1.428-.02L31.703 24.7a.991.991 0 0 0 0-1.404L19.608 11.29z"' +
+                            '                                fill-rule="evenodd"></path>' +
+                            '                        </svg>' +
+                            '                    </a>' +
+                            '                </div>' +
+                            '            </div>' +
+                            '        </div>' +
+                            '    </div>' +
+                            '</div>'
+                    }else if (v.type === 'video') {
+                        DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignStart-2rNW">' +
+                            ' <div class="MessageItem-container-2ufC">' +
+                            '  <div class="MessageItem-info-3g0Q">' +
+                            '   <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                            '   <div class="MessageItem-content-sfT0" style="min-width: 100%;">' +
+                            '    <div class="MessageItem-playerContainer-1PN6">' +
+                            '     <video width="375" height="280" controls>\n' +
+                            '       <source src="'+v.local_video_url+'">\n' +
+                            '     </video>' +
+                            '    </div>' +
+                            '   </div>' +
+                            '  </div>' +
+                            ' </div>' +
+                            '</div>'
+                    } else {
+                        alert('error' + v.type)
+                    }
+                } else {
+                    DOM += '<div data-id="' + v.zhihu_id + '" class="MessageItem-item-1dkw MessageItem-alignEnd-3Dtd">' +
+                        ' <div class="MessageItem-container-2ufC">' +
+                        '  <div class="MessageItem-info-3g0Q">' +
+                        '   <span class="MessageItem-name-1pbG">' + v.sender + '</span>' +
+                        '   <div class="MessageItem-content-sfT0">' +
+                        '    <div class="Bubble-bubble-3QtP Bubble-grey-2deT">' +
+                        '     <div class="TextAttachment-text-QdRA">' +
+                        '      <span class="Linkify">' + v.text + '</span>' +
+                        '     </div>' +
+                        '    </div>' +
+                        '   </div>' +
+                        '  </div>' +
+                        ' </div>' +
+                        '</div>';
+                }
+
+            });
+            has_next = res.has_next;
+            if (has_next){
+                $('.load-msg').html('查看更多历史消息');
+            }else {
+                $('.load-msg').html('没了');
+            }
+        } else {
+            has_next = false;
+            $('.load-msg').html('没了');
+        }
+        $('.MessagesInfinity-infinity-4X23').append(DOM);
+
+    }
+    //点击加载更多会话列表
+    $('body').delegate('.load-msg', 'click', function() {
+        setTimeout(function() {
+            //获取分页数pageNum
+            searchCondition.page += 1;
+            $('.load-msg').html('努力加载中....');
+            //请求
+            RequestServices('/live_next/' + zhihu_id, 'get', searchCondition, SuccessCB);
+        }, 10);
+    });
+    $('body').on('click','#Zoomable-root-3lUI',  function() {
+            $(this).toggleClass('ReactModal__Overlay ReactModal__Overlay--after-open Dialog-overlay-12_e');
+            $(this).toggleClass('min');
+        });
+</script>
+</html>

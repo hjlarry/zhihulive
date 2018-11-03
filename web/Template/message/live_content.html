@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <a href="{{url('live_show', id=live.zhihu_id)}}">{{live.title}}</a>
 <main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
     <div class="card">
-        <div class="card-header"><a href="{{url('live_detail', id=live.id)}}">{{live.title}}</a></div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-sm">
@@ -23,24 +23,24 @@
                         <td class="text-center">{{ item.id }}</td>
                         <td>
                             {% if item.type == 'audio' and item.is_transform %}
-                            {{item.transform_result|truncate(90)}}
-                            <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
-                            <div class="collapse" id="{{item.id}}">
-                                <div class="card card-body">
-                                    {{item.transform_result}}
-                                    <audio controls src="{{item.audio_url}}" preload="none"></audio>
+                                {{item.transform_result|truncate(90)}}
+                                <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                                <div class="collapse" id="{{item.id}}">
+                                    <div class="card card-body">
+                                        {{item.transform_result}}
+                                        <audio controls src="{{item.audio_url}}" preload="none"></audio>
+                                    </div>
                                 </div>
-                            </div>
                             {% elif item.text %}
-                            {{ item.text|truncate(90) }}
-                            {% if item.text|length > 90 %}
-                            <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
-                            <div class="collapse" id="{{item.id}}">
-                                <div class="card card-body">
-                                    {{item.text}}
-                                </div>
-                            </div>
-                            {% endif %}
+                                {{ item.text|truncate(90) }}
+                                {% if item.text|length > 90 %}
+                                    <a href="#{{item.id}}" data-toggle="collapse" style="float:right;">more</a>
+                                    <div class="collapse" id="{{item.id}}">
+                                        <div class="card card-body">
+                                            {{item.text}}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td class="text-center">{{ item.sender }}</td>
@@ -49,7 +49,7 @@
                         <td class="text-center">
                             <a href="{{url('message_detail', id=item.id)}}"
                                class="btn btn-outline-primary btn-sm ">编辑</a>
-                            <form action="{{url('message_delete', id=item.id, query_={'live_id': live.id})}}"
+                            <form action="{{url('message_delete', id=item.id, query_={'live_id': live.zhihu_id, 'page': page.current_page})}}"
                                   method="post" style="display: inline-block">
                                 <button class="btn btn-outline-info btn-sm " type="submit">删除</button>
                             </form>

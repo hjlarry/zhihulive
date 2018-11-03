@@ -1,9 +1,13 @@
-from aiohttp import web
+import os
+import datetime
+import json
+import aiohttp_debugtoolbar
 import aiohttp_jinja2
 import jinja2
-import os
-import aiohttp_debugtoolbar
+from itertools import chain
+from aiohttp import web
 
+import config
 from models import objects, Live, Message
 
 
@@ -11,7 +15,7 @@ from models import objects, Live, Message
 async def index(request):
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Live.select().order_by(Live.zhihu_id).paginate(current_page, per_page)
+    query = Live.select().order_by(Live.zhihu_id).order_by(Live.zhihu_id.asc()).paginate(current_page, per_page)
     counts = await objects.count(query, clear_limit=True)
     items = await objects.execute(query)
     # 向上取整
@@ -31,7 +35,7 @@ async def index(request):
     return data
 
 
-@aiohttp_jinja2.template('live/detail.html')
+@aiohttp_jinja2.template('live/live_detail.html')
 async def live_detail(request):
     live_id = request.match_info.get('id')
     if not live_id:
@@ -42,15 +46,16 @@ async def live_detail(request):
     }
 
 
-@aiohttp_jinja2.template('message/index.html')
-async def message_list(request):
+@aiohttp_jinja2.template('message/live_content.html')
+async def live_content(request):
     live_id = request.match_info.get('id')
     if not live_id:
         return {}
     live = await objects.get(Live, zhihu_id=live_id)
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Message.select().where(Message.live == live.id).paginate(current_page, per_page)
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False). \
+        order_by(Message.zhihu_id.asc()).paginate(current_page, per_page)
     items = await objects.execute(query)
     counts = await objects.count(query, clear_limit=True)
     # 向上取整
@@ -70,6 +75,88 @@ async def message_list(request):
         }
     }
     return data
+
+
+@aiohttp_jinja2.template('message/show.html')
+async def live_show(request):
+    live_id = request.match_info.get('id')
+    if not live_id:
+        return {}
+    live = await objects.get(Live, zhihu_id=live_id)
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False)
+    counts = await objects.count(query, clear_limit=True)
+    # 向上取整
+    data = {
+        'live': live,
+        'page': {
+            'counts': counts // 40,
+        }
+    }
+    return data
+
+
+async def live_next(request):
+    live_id = request.match_info.get('id')
+    if not live_id:
+        return {}
+    live = await objects.get(Live, zhihu_id=live_id)
+    current_page = int(request.query.get('page', 1))
+    per_page = 100
+    query = Message.select().where(Message.live == live.id, Message.is_deleted == False) \
+        .order_by(Message.zhihu_id.asc()).paginate(current_page, per_page + 1)
+    items = await objects.execute(query)
+
+    def default(o):
+        if type(o) is datetime.date or type(o) is datetime.datetime:
+            return o.isoformat()
+
+    if len(items) == per_page + 1:
+        data = {'items': [x._data for x in list(items)[:-1]], 'has_next': True}
+    else:
+        data = {'items': [x._data for x in list(items)], 'has_next': False}
+
+    # 添加本地路径的数据
+    data['items'] = [dict(
+                          local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
+                          local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
+                          local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x['img_path'] or '')),
+                          local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                                                  for item in str(x['img_path']).split('|')]),
+                          **x)
+                     for x in data['items']]
+    """
+    处理, 主讲人回复问题
+    1: 获取所有的回复
+    2: 把回复插入列表
+    """
+    reply_data = {}
+    for k, v in enumerate(data['items']):
+        if v['reply']:
+            reply_data[k] = [int(x) for x in str(v['reply']).split(',')]
+
+    reply_mesage = []
+    if reply_data:
+        _temp = list(chain(*reply_data.values()))
+        query = Message.select().where(Message.zhihu_id.in_(_temp))
+        reply_mesage = await objects.execute(query)
+
+    # 添加本地路径的数据
+    reply_mesage = {x._data['zhihu_id']:
+                        dict(
+                            local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
+                            local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
+                            local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x._data['img_path'] or '')),
+                            local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                                                    for item in str(x._data['img_path']).split('|')]),
+                             **dict(x._data))
+                    for x in list(reply_mesage)}
+    # 添加被回复的内容
+    for k, v in reply_data.items():
+        data['items'][k] = [data['items'][k]] + [dict(in_reply_to=data['items'][k],
+                                                      **reply_mesage.get(int(x), {})) for x in v]
+    data['items'] = [[x] if isinstance(x, dict) else x for x in data['items']]
+    data['items'] = list(chain(*data['items']))
+    return web.json_response(json.loads(json.dumps(data, default=default)))
 
 
 @aiohttp_jinja2.template('message/detail.html')
@@ -105,9 +192,9 @@ async def message_edit(request):
 async def message_delete(request):
     message_id = request.match_info.get('id')
     live_id = request.query.get('live_id', 1)
-    item = await objects.get(Message, id=message_id)
-    await objects.delete(item)
-    return web.HTTPFound(app.router['live_content'].url_for(id=live_id))
+    page = request.query.get('page', 1)
+    await objects.execute(Message.update(is_deleted=True).where(Message.id == message_id))
+    return web.HTTPFound(app.router['live_content'].url_for(id=live_id).with_query({'page': page}))
 
 
 app = web.Application()
@@ -117,7 +204,9 @@ app['static_root_url'] = '/static'
 aiohttp_debugtoolbar.setup(app, intercept_redirects=False)
 app.router.add_routes([web.get('/', index, name='index'),
                        web.get('/live/{id}', live_detail, name='live_detail'),
-                       web.get('/live_content/{id}', message_list, name='live_content'),
+                       web.get('/live_content/{id}', live_content, name='live_content'),
+                       web.get('/live_show/{id}', live_show, name='live_show'),
+                       web.get('/live_next/{id}', live_next, name='live_next'),
                        web.get('/message/{id}', message_detail, name='message_detail'),
                        web.post('/message/{id}', message_edit, name='message_edit'),
                        web.post('/message/delete/{id}', message_delete, name='message_delete'),
