@@ -142,7 +142,7 @@ class Crawler(BaseWebTransfer):
                     await objects.update(item)
 
             if rs['unload_count'] > 0:
-                self.add_url(MESSAGE_API_URL.format(zhihu_id=live.id, before_id=rs['data'][0]['id']), live=live)
+                self.add_url(MESSAGE_API_URL.format(zhihu_id=live.zhihu_id, before_id=rs['data'][0]['id']), live=live)
 
     async def convert_local_images(self, pic_urls):
         all_path = []
