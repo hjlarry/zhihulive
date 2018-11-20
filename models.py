@@ -24,6 +24,7 @@ class Live(BaseModel):
     liked_num = peewee.IntegerField(null=True)
     speaker_message_count = peewee.IntegerField(null=True)
     starts_at = peewee.DateTimeField(null=True)
+    is_deleted = peewee.BooleanField(default=False)
 
     def __repr__(self):
         return '<Live({title})>'.format(title=self.title)

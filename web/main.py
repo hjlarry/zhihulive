@@ -15,7 +15,7 @@ from models import objects, Live, Message
 async def index(request):
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Live.select().order_by(Live.zhihu_id).order_by(Live.zhihu_id.asc()).paginate(current_page, per_page)
+    query = Live.select().where(Live.is_deleted == False).order_by(Live.zhihu_id.asc()).paginate(current_page, per_page)
     counts = await objects.count(query, clear_limit=True)
     items = await objects.execute(query)
     # 向上取整
@@ -83,14 +83,9 @@ async def live_show(request):
     if not live_id:
         return {}
     live = await objects.get(Live, zhihu_id=live_id)
-    query = Message.select().where(Message.live == live.id, Message.is_deleted == False)
-    counts = await objects.count(query, clear_limit=True)
     # 向上取整
     data = {
         'live': live,
-        'page': {
-            'counts': counts // 40,
-        }
     }
     return data
 
@@ -197,6 +192,14 @@ async def message_delete(request):
     return web.HTTPFound(app.router['live_content'].url_for(id=live_id).with_query({'page': page}))
 
 
+async def live_delete(request):
+    live_id = request.match_info.get('id')
+    zhihu_id = request.query.get('live_id', 1)
+    page = request.query.get('page', 1)
+    await objects.execute(Live.update(is_deleted=True).where(Live.id == live_id, Live.zhihu_id == zhihu_id))
+    return web.HTTPFound(app.router['index'].url_for().with_query({'page': page}))
+
+
 app = web.Application()
 template_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Template')
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(template_path))
@@ -204,6 +207,7 @@ app['static_root_url'] = '/static'
 aiohttp_debugtoolbar.setup(app, intercept_redirects=False)
 app.router.add_routes([web.get('/', index, name='index'),
                        web.get('/live/{id}', live_detail, name='live_detail'),
+                       web.post('/live/delete/{id}', live_delete, name='live_delete'),
                        web.get('/live_content/{id}', live_content, name='live_content'),
                        web.get('/live_show/{id}', live_show, name='live_show'),
                        web.get('/live_next/{id}', live_next, name='live_next'),
