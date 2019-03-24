@@ -7,6 +7,7 @@ import mimetypes
 
 from http.server import SimpleHTTPRequestHandler
 
+import config
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
     '''Like shutil.copyfileobj, but only copy a range of the streams.
@@ -112,7 +113,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         copy_byte_range(source, outputfile, start, stop)
 
 
-def run(port=8000):
+def run(port=config.LOCAL_SERVER_PORT):
     SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=port)
 
 

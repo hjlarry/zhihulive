@@ -9,6 +9,7 @@ from models import create_table, drop_table, clean_data
 from web.main import app
 from download.main import run as media_server
 
+import config
 
 @click.group()
 def cli():
@@ -66,7 +67,7 @@ def webserver():
     click.echo('Start web server')
     threading.Thread(target=media_server, args=()).start()
     app.router.add_static('/static', 'web/static')
-    web.run_app(app)
+    web.run_app(app, host=config.WEB_SERVER_HOST, port=config.WEB_SERVER_PORT)
 
 
 cli.add_command(initdb)
