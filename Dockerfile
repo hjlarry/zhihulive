@@ -10,7 +10,7 @@ RUN apk add --update --no-cache mariadb-client-libs \
 		musl-dev \
 		libffi-dev \
 		openssl-dev \
-		python3-dev
+		python3-dev \
 	&& pip install -r requirements.txt
 
 EXPOSE 8000 8080
