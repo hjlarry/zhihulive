@@ -4,7 +4,7 @@ import config
 from itertools import chain
 
 database = peewee_async.MySQLDatabase(host=config.DB_HOST, database=config.DB_NAME, password=config.DB_PASS,
-                                      user=config.DB_USER, charset='utf8mb4')
+                                      user=config.DB_USER, port=config.DB_PORT, charset='utf8mb4')
 
 
 class BaseModel(peewee.Model):

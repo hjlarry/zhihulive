@@ -42,6 +42,7 @@ BAIDU_SERVER_URL = 'http://vop.baidu.com/server_api'
 
 
 DB_HOST = '192.168.56.128'
+DB_PORT = 3308
 DB_NAME = 'zhihu'
 DB_USER = 'zhihu'
 DB_PASS = 'password'
