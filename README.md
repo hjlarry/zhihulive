@@ -56,21 +56,20 @@ python run.py crawl
 # 在i5平台, 8G内存, 100M带宽下, 一次全部下载大概8小时, 全程占用50m带宽, 最后acc+img 文件80G左右
 python run.py crawlvip
 ```
-6、转化
+6、转化(已安装ffmpeg套件可忽略)
 ```bash
 # 未安装 ffmpeg套件, 需要先转换 文件
 python run.py transform
 ```
-7、启动管理后台
-```bash
-python run.py webserver
-```
-8、清理数据
+7、清理数据
 ```bash
 # 调整主讲人回复到问题后面, 运行后可以解决回复多次展示的问题
 python run.py clean_data
 ```
-
+8、启动管理后台
+```bash
+python run.py webserver
+```
 9、支持docker
 ```bash
 docker run -it -d --name zhihu -p 8080:8080 -p -p 8000:8000 -v $(pwd):/app:ro xingdao/zhihu

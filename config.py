@@ -18,10 +18,17 @@ AUDIO_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'audios')
 FILE_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'file')
 VIDEO_FOLDER = os.path.join(DOWNLOAD_FOLDER, 'video')
 
-LOCAL_AUDIO_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/audios'
-LOCAL_IMG_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/images'
-LOCAL_FILE_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/file'
-LOCAL_VIDEO_BASE_URL = 'http://127.0.0.1:8000/%s/' % 'download/video'
+LOCAL_SERVER_HOST = '127.0.0.1'
+LOCAL_SERVER_PORT = 8000
+
+WEB_SERVER_HOST = '0.0.0.0'
+WEB_SERVER_PORT = 8080
+
+LOCAL_BASE_URL = 'http://{}:{}/'.format(LOCAL_SERVER_HOST, LOCAL_SERVER_PORT)
+LOCAL_AUDIO_BASE_URL = LOCAL_BASE_URL + 'download/audios/'
+LOCAL_IMG_BASE_URL = LOCAL_BASE_URL + 'download/images/'
+LOCAL_FILE_BASE_URL = LOCAL_BASE_URL + 'download/file/'
+LOCAL_VIDEO_BASE_URL = LOCAL_BASE_URL + 'download/video/'
 
 for x in [DOWNLOAD_FOLDER, IMAGE_FOLDER, AUDIO_FOLDER, FILE_FOLDER, VIDEO_FOLDER]:
     if not os.path.exists(x):
@@ -40,9 +47,9 @@ BAIDU_SECRET_KEY = 'p1PIZsLVbvBGZo0Twt3ZF1W46cep9XZq'
 BAIDU_TOKEN_URL = 'https://openapi.baidu.com/oauth/2.0/token'
 BAIDU_SERVER_URL = 'http://vop.baidu.com/server_api'
 
-
 DB_HOST = '192.168.56.128'
-DB_PORT = 3308
+
+DB_PORT = 3306
 DB_NAME = 'zhihu'
 DB_USER = 'zhihu'
 DB_PASS = 'password'
