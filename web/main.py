@@ -6,7 +6,7 @@ import aiohttp_jinja2
 import jinja2
 from itertools import chain
 from aiohttp import web
-
+import ntpath
 import config
 from models import objects, Live, Message
 
@@ -15,7 +15,7 @@ from models import objects, Live, Message
 async def index(request):
     current_page = int(request.query.get('page', 1))
     per_page = 20
-    query = Live.select().order_by(Live.zhihu_id).order_by(Live.zhihu_id.asc()).paginate(current_page, per_page)
+    query = Live.select().where(Live.is_deleted == False).order_by(Live.zhihu_id.asc()).paginate(current_page, per_page)
     counts = await objects.count(query, clear_limit=True)
     items = await objects.execute(query)
     # 向上取整
@@ -83,14 +83,9 @@ async def live_show(request):
     if not live_id:
         return {}
     live = await objects.get(Live, zhihu_id=live_id)
-    query = Message.select().where(Message.live == live.id, Message.is_deleted == False)
-    counts = await objects.count(query, clear_limit=True)
     # 向上取整
     data = {
         'live': live,
-        'page': {
-            'counts': counts // 40,
-        }
     }
     return data
 
@@ -117,10 +112,10 @@ async def live_next(request):
 
     # 添加本地路径的数据
     data['items'] = [dict(
-                          local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
-                          local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x['audio_path'] or '')),
-                          local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x['img_path'] or '')),
-                          local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                          local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(ntpath.basename(x['audio_path'] or '')),
+                          local_video_url=config.LOCAL_VIDEO_BASE_URL + str(ntpath.basename(x['audio_path'] or '')),
+                          local_file_url=config.LOCAL_FILE_BASE_URL + str(ntpath.basename(x['img_path'] or '')),
+                          local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(ntpath.basename(item or ''))
                                                   for item in str(x['img_path']).split('|')]),
                           **x)
                      for x in data['items']]
@@ -140,15 +135,16 @@ async def live_next(request):
         query = Message.select().where(Message.zhihu_id.in_(_temp))
         reply_mesage = await objects.execute(query)
 
+    # print({x._data['zhihu_id']: dict(**dict(x._data)) for x in list(reply_mesage)})
     # 添加本地路径的数据
     reply_mesage = {x._data['zhihu_id']:
                         dict(
-                            local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
-                            local_video_url=config.LOCAL_VIDEO_BASE_URL + str(os.path.basename(x._data['audio_path'] or '')),
-                            local_file_url=config.LOCAL_FILE_BASE_URL + str(os.path.basename(x._data['img_path'] or '')),
-                            local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(os.path.basename(item or ''))
+                            local_audio_url=config.LOCAL_AUDIO_BASE_URL + str(ntpath.basename(x._data['audio_path'] or '')),
+                            local_video_url=config.LOCAL_VIDEO_BASE_URL + str(ntpath.basename(x._data['audio_path'] or '')),
+                            local_file_url=config.LOCAL_FILE_BASE_URL + str(ntpath.basename(x._data['img_path'] or '')),
+                            local_img_url='|'.join([config.LOCAL_IMG_BASE_URL + str(ntpath.basename(item or ''))
                                                     for item in str(x._data['img_path']).split('|')]),
-                             **dict(x._data))
+                            **x._data)
                     for x in list(reply_mesage)}
     # 添加被回复的内容
     for k, v in reply_data.items():
@@ -197,6 +193,14 @@ async def message_delete(request):
     return web.HTTPFound(app.router['live_content'].url_for(id=live_id).with_query({'page': page}))
 
 
+async def live_delete(request):
+    live_id = request.match_info.get('id')
+    zhihu_id = request.query.get('live_id', 1)
+    page = request.query.get('page', 1)
+    await objects.execute(Live.update(is_deleted=True).where(Live.id == live_id, Live.zhihu_id == zhihu_id))
+    return web.HTTPFound(app.router['index'].url_for().with_query({'page': page}))
+
+
 app = web.Application()
 template_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Template')
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(template_path))
@@ -204,6 +208,7 @@ app['static_root_url'] = '/static'
 aiohttp_debugtoolbar.setup(app, intercept_redirects=False)
 app.router.add_routes([web.get('/', index, name='index'),
                        web.get('/live/{id}', live_detail, name='live_detail'),
+                       web.post('/live/delete/{id}', live_delete, name='live_delete'),
                        web.get('/live_content/{id}', live_content, name='live_content'),
                        web.get('/live_show/{id}', live_show, name='live_show'),
                        web.get('/live_next/{id}', live_next, name='live_next'),

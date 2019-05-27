@@ -6,14 +6,14 @@
         <table class="table table-hover table-sm">
             <thead>
             <tr>
-                <th class="text-center" width="50">ID</th>
-                <th class="text-center" width="240">zhihu_id</th>
-                <th>标题</th>
-                <th width="200" class="text-center">作者</th>
-                <th width="200" class="text-center">开始时间</th>
+                <th width="50" class="text-center">ID</th>
+{#                <th class="text-center" width="240">zhihu_id</th>#}
+                <th width="200" class="text-center">标题</th>
+                <th width="100" class="text-center">作者</th>
+                <th width="100" class="text-center">开始时间</th>
                 <th width="100" class="text-center">参与人数</th>
                 <th width="100" class="text-center">价格</th>
-                <th width="100" class="text-center">点赞人数</th>
+{#                <th width="100" class="text-center">点赞人数</th>#}
                 <th width="260" class="text-center">操作</th>
             </tr>
             </thead>
@@ -21,17 +21,21 @@
             {%- for item in items %}
             <tr>
                 <td class="text-center">{{ item.id }}</td>
-                <td class="text-center">{{ item.zhihu_id }}</td>
+{#                <td class="text-center">{{ item.zhihu_id }}</td>#}
                 <td>{{ item.title }}</td>
                 <td class="text-center">{{ item.speaker }}</td>
                 <td class="text-center">{{ item.starts_at }}</td>
                 <td class="text-center">{{ item.seats_count }}</td>
                 <td class="text-center">￥{{ item.price / 100 }}</td>
-                <td class="text-center">{{ item.liked_num }}</td>
+{#                <td class="text-center">{{ item.liked_num }}</td>#}
                 <td class="text-center">
                     <a href="{{url('live_show', id=item.zhihu_id)}}" class="btn btn-outline-primary btn-sm">进入</a>
                     <a href="{{url('live_detail', id=item.zhihu_id)}}" class="btn btn-outline-info btn-sm">介绍</a>
                     <a href="{{url('live_content', id=item.zhihu_id)}}" class="btn btn-outline-primary btn-sm">编辑</a>
+                    <form action="{{url('live_delete', id=item.id, query_={'live_id': item.zhihu_id, 'page': page.current_page})}}"
+                        method="post" style="display: inline-block">
+                        <button class="btn btn-outline-warning btn-sm " type="submit">删除</button>
+                    </form>
                 </td>
             </tr>
             {%- endfor %}

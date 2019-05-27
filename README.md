@@ -70,6 +70,18 @@ python run.py clean_data
 ```bash
 python run.py webserver
 ```
+9、支持docker
+```bash
+docker run -it -d --name zhihu -p 8080:8080 -p -p 8000:8000 -v $(pwd):/app:ro xingdao/zhihu
+# 注意 运行目录为项目根目录, 需要修改 config 内配置如:
+    mysql \
+    LOCAL_AUDIO_BASE_URL, LOCAL_IMG_BASE_URL,
+    LOCAL_FILE_BASE_URL, LOCAL_VIDEO_BASE_URL
+  挂载为只读挂载, 建议本地下载好数据后 再启动, 防止docker中误差作, 需要在dockers中修改数据的(运行下载等)请去除 'ro'标识
+
+# 或者使用 项目中 Dockerfile 自行编译运行
+```
+
 ### 备注
 * [之前版本](https://github.com/hjlarry/zhihulive/tree/second_version)使用不同技术栈开发
 * 欢迎提PR
